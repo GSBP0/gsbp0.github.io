@@ -6,6 +6,28 @@
     <description>Recent content on GSBP&#39;s Blog</description>
     <generator>Hugo</generator>
     <language>en-us</language>
+    <lastBuildDate>Sat, 18 Jan 2025 01:22:01 +0800</lastBuildDate>
     <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>友链</title>
+      <link>http://localhost:1313/friend/</link>
+      <pubDate>Sat, 18 Jan 2025 01:22:01 +0800</pubDate>
+      <guid>http://localhost:1313/friend/</guid>
+      <description>&lt;p&gt;&lt;div class=&#34;friend-div&#34;&gt;&#xA;  &lt;a target=&#34;_blank&#34; href=1231 title=1231 &gt;&#xA;  &lt;img src=http://127.0.0.1:1313/img/GSBP.jpg&#xA;       alt=1231&#xA;  data-sizes=&#34;auto&#34;&#xA;  data-srcset=&#34;http://127.0.0.1:1313/img/GSBP.jpg, http://127.0.0.1:1313/img/GSBP.jpg 1.5x, http://127.0.0.1:1313/img/GSBP.jpg 2x&#34; /&gt;&#xA;  &lt;span class=&#34;friend-name&#34;&gt;1231&lt;/span&gt;&#xA;  &lt;span class=&#34;friend-info&#34;&gt;456&lt;/span&gt;&#xA;  &lt;/a&gt;&#xA;&lt;/div&gt;&#xA;&#xA;&#xA;&#xA;&lt;div class=&#34;friend-div&#34;&gt;&#xA;  &lt;a target=&#34;_blank&#34; href=%e5%8f%8b%e9%93%be%e5%9c%b0%e5%9d%802 title=友链名称2 &gt;&#xA;  &lt;img src=%e5%8f%8b%e9%93%be%e5%9b%be%e7%89%87%e9%93%be%e6%8e%a52&#xA;       alt=友链名称2&#xA;  data-sizes=&#34;auto&#34;&#xA;  data-srcset=&#34;%e5%8f%8b%e9%93%be%e5%9b%be%e7%89%87%e9%93%be%e6%8e%a52, %e5%8f%8b%e9%93%be%e5%9b%be%e7%89%87%e9%93%be%e6%8e%a52 1.5x, %e5%8f%8b%e9%93%be%e5%9b%be%e7%89%87%e9%93%be%e6%8e%a52 2x&#34; /&gt;&#xA;  &lt;span class=&#34;friend-name&#34;&gt;友链名称2&lt;/span&gt;&#xA;  &lt;span class=&#34;friend-info&#34;&gt;友链描述2&lt;/span&gt;&#xA;  &lt;/a&gt;&#xA;&lt;/div&gt;&#xA;&#xA;&#xA;&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>About Me</title>
+      <link>http://localhost:1313/about/</link>
+      <pubDate>Fri, 17 Jan 2025 19:38:41 +0800</pubDate>
+      <guid>http://localhost:1313/about/</guid>
+      <description>&lt;p&gt;一名大二在读学生&lt;/p&gt;&#xA;&lt;p&gt;Syclover &amp;amp; 0XFFF 成员&lt;/p&gt;&#xA;&lt;p&gt;对各种安全感兴趣，目前主要学习的还的是Web安全（Java 安全、云安全等）&lt;/p&gt;&#xA;&lt;p&gt;最爱吃，最喜欢吃的是🍉，最喜欢干的事情就是大夏天抱着半个西瓜拿勺子挖着吃然后看视频&lt;/p&gt;&#xA;&lt;p&gt;会打点小游戏（其实从小学之前就开始打游戏了hh&lt;/p&gt;&#xA;&lt;p&gt;&lt;strong&gt;什么都想学，但什么都不会&lt;/strong&gt;&lt;/p&gt;&#xA;&lt;h1 id=&#34;contact-me&#34;&gt;Contact Me&lt;/h1&gt;&#xA;&lt;p&gt;Email:gsbp6279@gmail.com&lt;/p&gt;&#xA;&lt;p&gt;GitHub:https://github.com/GSBP0/:&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Test</title>
+      <link>http://localhost:1313/post/test/</link>
+      <pubDate>Fri, 17 Jan 2025 19:38:41 +0800</pubDate>
+      <guid>http://localhost:1313/post/test/</guid>
+      <description></description>
+    </item>
   </channel>
 </rss>

@@ -1,0 +1,27 @@
++++
+date = '2025-01-17T19:38:41+08:00'
+draft = false
+title = 'About Me'
+layout='about'
+
++++
+
+一名大二在读学生
+
+Syclover & 0XFFF 成员
+
+对各种安全感兴趣，目前主要学习的还的是Web安全（Java 安全、云安全等）
+
+最爱吃，最喜欢吃的是🍉，最喜欢干的事情就是大夏天抱着半个西瓜拿勺子挖着吃然后看视频
+
+会打点小游戏（其实从小学之前就开始打游戏了hh 
+
+
+
+**什么都想学，但什么都不会**
+
+# Contact Me
+
+Email:gsbp6279@gmail.com
+
+GitHub:https://github.com/GSBP0/:

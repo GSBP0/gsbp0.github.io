@@ -6,11 +6,11 @@ title = "GSBP's Blog"
 [params]
 author = "GSBP"
 description = "A CTFER && JavaSecurity Researcher"
-authorImage = "resources/image/GSBP.jpg"
+authorImage = "/img/GSBP.jpg"
 paginate = 5 
 Title = "GSBP's Blog"
 content = "Interesting in CyberSecurity"
-imageUrl = "/images/avatar.jpg"
+imageUrl = "/img/GSBP.jpg"
 
 # To add a new social icon 
 # More social icons can be found in JuiceBar\layouts\partials\svg.html.
@@ -38,7 +38,9 @@ url = "/post"
 [[menu.main]]
 name = "Categories"
 url = "/categories"
-
+[[menu.main]]
+name = "Friends"
+url = "/friend"
 # If using the giscus commenting system
 #[params.giscus]
 #repo = "ENTER REPO HERE"
