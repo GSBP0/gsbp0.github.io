@@ -5,6 +5,5 @@ title = '友链'
 layout = "friends"
 +++
 
-{{< friend name="1231" url="1231" logo="http://127.0.0.1:1313/img/GSBP.jpg" word="456" >}}
-{{< friend name="友链名称2" url="友链地址2" logo="友链图片链接2" word="友链描述2" >}}
+{{< friend name="Z3n1th" url="https://z3n1th1.com/" logo="/img/z3n1th1.jpg" word="z3✌️" >}}
 
