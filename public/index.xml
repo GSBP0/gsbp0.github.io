@@ -6,8 +6,15 @@
     <description>Recent content on GSBP&#39;s Blog</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 18 Jan 2025 01:22:01 +0800</lastBuildDate>
+    <lastBuildDate>Sat, 18 Jan 2025 19:38:41 +0800</lastBuildDate>
     <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>2025-SUCTF-WP</title>
+      <link>http://localhost:1313/post/2025suctf/</link>
+      <pubDate>Sat, 18 Jan 2025 19:38:41 +0800</pubDate>
+      <guid>http://localhost:1313/post/2025suctf/</guid>
+      <description>2025年的第一场XCTF</description>
+    </item>
     <item>
       <title>友链</title>
       <link>http://localhost:1313/friend/</link>
@@ -21,13 +28,6 @@
       <pubDate>Fri, 17 Jan 2025 19:38:41 +0800</pubDate>
       <guid>http://localhost:1313/about/</guid>
       <description>&lt;p&gt;一名大二在读学生&lt;/p&gt;&#xA;&lt;p&gt;Syclover &amp;amp; 0XFFF 成员&lt;/p&gt;&#xA;&lt;p&gt;对各种安全感兴趣，目前主要学习的还的是Web安全（Java 安全、云安全等）&lt;/p&gt;&#xA;&lt;p&gt;最爱吃，最喜欢吃的是🍉，最喜欢干的事情就是大夏天抱着半个西瓜拿勺子挖着吃然后看视频&lt;/p&gt;&#xA;&lt;p&gt;会打点小游戏（其实从小学之前就开始打游戏了hh&lt;/p&gt;&#xA;&lt;p&gt;&lt;strong&gt;什么都想学，但什么都不会&lt;/strong&gt;&lt;/p&gt;&#xA;&lt;h1 id=&#34;contact-me&#34;&gt;Contact Me&lt;/h1&gt;&#xA;&lt;p&gt;Email:gsbp6279@gmail.com&lt;/p&gt;&#xA;&lt;p&gt;GitHub:https://github.com/GSBP0/:&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>Test</title>
-      <link>http://localhost:1313/post/test/</link>
-      <pubDate>Fri, 17 Jan 2025 19:38:41 +0800</pubDate>
-      <guid>http://localhost:1313/post/test/</guid>
-      <description></description>
     </item>
   </channel>
 </rss>
