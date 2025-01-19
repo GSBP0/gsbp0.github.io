@@ -4,6 +4,7 @@ draft = false
 title = '2025-SUCTF-WP'
 author='GSBP'
 summary='2025年的第一场XCTF'
+categories=["WP"]
 
 +++
 

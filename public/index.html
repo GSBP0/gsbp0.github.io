@@ -192,6 +192,117 @@
   <div class="single-container column is-centered">
     <div class="archive" id="post-container">
       <header class="post-header">
+        <h1 class="post-title hover-underline-animation"><a class="post-link" href="/post/jdk17%E6%89%93jackson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/">JDK17打Jackson反序列化</a></h1>
+       
+       
+      </header>
+      <div class="post-content">
+        <div class="excerpt post-summary">
+          <h2 id="起因">起因</h2>
+<p>本月五号的时候打了个软件攻防赛，里面有道java当时没做出来，用的ldapAttribute+Jackson死活没通，后面自己调试了一下，这里做个记录</p>
+<h2 id="题目分析">题目分析</h2>
+<p>题目名叫<code>JDBCParty</code>,jdk版本是17，里面给了个接口源码如下</p>
+<pre tabindex="0"><code>    @PostMapping({&#34;/dbtest&#34;})
+    public ResponseEntity&lt;String&gt; dbtest(String data) {
+        try {
+            User credentials = (User)Utils.deserialize(data);
+            Class.forName(this.driverClassName);
+
+            try (Connection connection = DriverManager.getConnection(this.url, credentials.getUsername(), credentials.getPassword())) {
+                if (connection.isValid(5)) {
+                    return ResponseEntity.ok(&#34;connect success&#34;);
+                } else {
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(&#34;connect failed&#34;);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(&#34;connect failed &#34; + e.getMessage());
+        }
+    }
+}
+</code></pre><p>表面上是给了个JDBC的入口，但是我们能控的只有username和password，打不了jdbc。</p>
+<p>实际入口是那个反序列化，从这个反序列化里面做文章</p>
+<p>然后看看题目给的依赖</p>
+<pre tabindex="0"><code>- &#34;BOOT-INF/lib/spring-boot-3.3.5.jar&#34;
+- &#34;BOOT-INF/lib/spring-boot-autoconfigure-3.3.5.jar&#34;
+- &#34;BOOT-INF/lib/logback-classic-1.5.11.jar&#34;
+- &#34;BOOT-INF/lib/logback-core-1.5.11.jar&#34;
+- &#34;BOOT-INF/lib/log4j-to-slf4j-2.23.1.jar&#34;
+- &#34;BOOT-INF/lib/log4j-api-2.23.1.jar&#34;
+- &#34;BOOT-INF/lib/jul-to-slf4j-2.0.16.jar&#34;
+- &#34;BOOT-INF/lib/jakarta.annotation-api-2.1.1.jar&#34;
+- &#34;BOOT-INF/lib/snakeyaml-2.2.jar&#34;
+- &#34;BOOT-INF/lib/jackson-databind-2.17.2.jar&#34;
+- &#34;BOOT-INF/lib/jackson-annotations-2.17.2.jar&#34;
+- &#34;BOOT-INF/lib/jackson-core-2.17.2.jar&#34;
+- &#34;BOOT-INF/lib/jackson-datatype-jdk8-2.17.2.jar&#34;
+- &#34;BOOT-INF/lib/jackson-datatype-jsr310-2.17.2.jar&#34;
+- &#34;BOOT-INF/lib/jackson-module-parameter-names-2.17.2.jar&#34;
+- &#34;BOOT-INF/lib/tomcat-embed-core-10.1.31.jar&#34;
+- &#34;BOOT-INF/lib/tomcat-embed-el-10.1.31.jar&#34;
+- &#34;BOOT-INF/lib/tomcat-embed-websocket-10.1.31.jar&#34;
+- &#34;BOOT-INF/lib/spring-web-6.1.14.jar&#34;
+- &#34;BOOT-INF/lib/spring-beans-6.1.14.jar&#34;
+- &#34;BOOT-INF/lib/micrometer-observation-1.13.6.jar&#34;
+- &#34;BOOT-INF/lib/micrometer-commons-1.13.6.jar&#34;
+- &#34;BOOT-INF/lib/spring-webmvc-6.1.14.jar&#34;
+- &#34;BOOT-INF/lib/spring-aop-6.1.14.jar&#34;
+- &#34;BOOT-INF/lib/spring-context-6.1.14.jar&#34;
+- &#34;BOOT-INF/lib/spring-expression-6.1.14.jar&#34;
+- &#34;BOOT-INF/lib/thymeleaf-spring6-3.1.2.RELEASE.jar&#34;
+- &#34;BOOT-INF/lib/thymeleaf-3.1.2.RELEASE.jar&#34;
+- &#34;BOOT-INF/lib/attoparser-2.0.7.RELEASE.jar&#34;
+- &#34;BOOT-INF/lib/unbescape-1.1.6.RELEASE.jar&#34;
+- &#34;BOOT-INF/lib/slf4j-api-2.0.16.jar&#34;
+- &#34;BOOT-INF/lib/spring-core-6.1.14.jar&#34;
+- &#34;BOOT-INF/lib/spring-jcl-6.1.14.jar&#34;
+- &#34;BOOT-INF/lib/ojdbc11-21.14.0.0.jar&#34;
+- &#34;BOOT-INF/lib/tomcat-jdbc-10.1.31.jar&#34;
+- &#34;BOOT-INF/lib/tomcat-juli-10.1.31.jar&#34;
+- &#34;BOOT-INF/lib/batik-swing-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-anim-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-parser-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-svg-dom-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-awt-util-1.14.jar&#34;
+- &#34;BOOT-INF/lib/xmlgraphics-commons-2.6.jar&#34;
+- &#34;BOOT-INF/lib/commons-io-1.3.1.jar&#34;
+- &#34;BOOT-INF/lib/commons-logging-1.0.4.jar&#34;
+- &#34;BOOT-INF/lib/batik-bridge-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-xml-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-css-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-dom-1.14.jar&#34;
+- &#34;BOOT-INF/lib/xalan-2.7.2.jar&#34;
+- &#34;BOOT-INF/lib/serializer-2.7.2.jar&#34;
+- &#34;BOOT-INF/lib/xml-apis-1.4.01.jar&#34;
+- &#34;BOOT-INF/lib/batik-ext-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-gui-util-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-gvt-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-script-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-shared-resources-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-util-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-constants-1.14.jar&#34;
+- &#34;BOOT-INF/lib/batik-i18n-1.14.jar&#34;
+- &#34;BOOT-INF/lib/xml-apis-ext-1.3.04.jar&#34;
+- &#34;BOOT-INF/lib/fastjson2-2.0.37.jar&#34;
+- &#34;BOOT-INF/lib/spring-boot-jarmode-tools-3.3.5.jar&#34;
+</code></pre><p>有tomcat-jdbc,snakeYaml,EL,Jackson和fastjson2等等，题目指向性很强，就是让我们用一个JNDI通过Tomcat-JDBC打EL，snakeYaml表达式注入的操作</p>
+        </div>
+        
+        <div class="post-time-container">
+          <span class="post-time"> 2025-01-20 </span>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</article>
+
+    
+        <article class="post">
+  <div class="single-container column is-centered">
+    <div class="archive" id="post-container">
+      <header class="post-header">
         <h1 class="post-title hover-underline-animation"><a class="post-link" href="/post/2025suctf/">2025-SUCTF-WP</a></h1>
        
        
