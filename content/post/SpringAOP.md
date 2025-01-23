@@ -29,7 +29,7 @@ method.invoke()
 
 执行类是`org.springframework.aop.aspectj.AbstractAspectJAdvice`的**invokeAdviceMethodWithGivenArgs**方法
 
-![image-20250123020448769](/Users/gsbp/Library/Application Support/typora-user-images/image-20250123020448769.png)
+![image-20250123020448769](https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250123020448769.png)
 
 ```
     protected Object invokeAdviceMethodWithGivenArgs(Object[] args) throws Throwable {
