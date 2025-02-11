@@ -13,7 +13,7 @@ categories=["Java安全"]
 
 ## 正文
 
-依赖于Spring-AOP和aspectjweaver两个包，但是springboot中的spring-boot-starter-aop自带包含这俩类，可以说是和Jackson一样通杀springboot的链子了
+依赖于Spring-AOP和aspectjweaver两个包，但是springboot中的spring-boot-starter-aop自带包含这俩类
 
 ### 流程
 
