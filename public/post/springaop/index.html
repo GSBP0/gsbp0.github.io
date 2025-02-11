@@ -9,7 +9,7 @@
         content="前言
 在浏览文章的时候看见有师傅发现了一条仅依赖于Springboot中的SpringAOP的链，于是自己调试学习了一下
 正文
-依赖于Spring-AOP和aspectjweaver两个包，但是springboot中的spring-boot-starter-aop自带包含这俩类，可以说是和Jackson一样通杀springboot的链子了
+依赖于Spring-AOP和aspectjweaver两个包，但是springboot中的spring-boot-starter-aop自带包含这俩类
 流程
 调用链如下
 JdkDynamicAopProxy.invoke()-&gt;
@@ -18,7 +18,7 @@ AspectJAroundAdvice-&gt;invoke-&gt;
 org.springframework.aop.aspectj.AbstractAspectJAdvice.invokeAdviceMethod()-&gt;
 method.invoke()
 执行类是org.springframework.aop.aspectj.AbstractAspectJAdvice的invokeAdviceMethodWithGivenArgs方法
-![image-20250123020448769](/Users/gsbp/Library/Application Support/typora-user-images/image-20250123020448769.png)
+
     protected Object invokeAdviceMethodWithGivenArgs(Object[] args) throws Throwable {
         Object[] actualArgs = args;
         if (this.aspectJAdviceMethod.getParameterCount() == 0) {
@@ -44,10 +44,9 @@ method.invoke()
   <meta property="og:site_name" content="GSBP&#39;s Blog">
   <meta property="og:title" content="SpringAOP链学习">
   <meta property="og:description" content="前言 在浏览文章的时候看见有师傅发现了一条仅依赖于Springboot中的SpringAOP的链，于是自己调试学习了一下
-正文 依赖于Spring-AOP和aspectjweaver两个包，但是springboot中的spring-boot-starter-aop自带包含这俩类，可以说是和Jackson一样通杀springboot的链子了
+正文 依赖于Spring-AOP和aspectjweaver两个包，但是springboot中的spring-boot-starter-aop自带包含这俩类
 流程 调用链如下
 JdkDynamicAopProxy.invoke()-&gt;ReflectiveMethodInvocation.proceed()-&gt;AspectJAroundAdvice-&gt;invoke-&gt;org.springframework.aop.aspectj.AbstractAspectJAdvice.invokeAdviceMethod()-&gt;method.invoke() 执行类是org.springframework.aop.aspectj.AbstractAspectJAdvice的invokeAdviceMethodWithGivenArgs方法
-![image-20250123020448769](/Users/gsbp/Library/Application Support/typora-user-images/image-20250123020448769.png)
 protected Object invokeAdviceMethodWithGivenArgs(Object[] args) throws Throwable {Object[] actualArgs = args;if (this.aspectJAdviceMethod.getParameterCount() == 0) {actualArgs = null;}try {ReflectionUtils.makeAccessible(this.aspectJAdviceMethod);return this.aspectJAdviceMethod.invoke(this.aspectInstanceFactory.getAspectInstance(), actualArgs);} catch (IllegalArgumentException ex) {throw new AopInvocationException(&#34;Mismatch on arguments to advice method [&#34; &#43; this.aspectJAdviceMethod &#43; &#34;]; pointcut expression [&#34; &#43; this.pointcut.getPointcutExpression() &#43; &#34;]&#34;, ex);} catch (InvocationTargetException ex) {throw ex.getTargetException();}} 直接在AOP依赖下的一个sink点，有着反射执行任意方法的能力，操作空间很大">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="article">
@@ -59,10 +58,9 @@ protected Object invokeAdviceMethodWithGivenArgs(Object[] args) throws Throwable
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="SpringAOP链学习">
   <meta name="twitter:description" content="前言 在浏览文章的时候看见有师傅发现了一条仅依赖于Springboot中的SpringAOP的链，于是自己调试学习了一下
-正文 依赖于Spring-AOP和aspectjweaver两个包，但是springboot中的spring-boot-starter-aop自带包含这俩类，可以说是和Jackson一样通杀springboot的链子了
+正文 依赖于Spring-AOP和aspectjweaver两个包，但是springboot中的spring-boot-starter-aop自带包含这俩类
 流程 调用链如下
 JdkDynamicAopProxy.invoke()-&gt;ReflectiveMethodInvocation.proceed()-&gt;AspectJAroundAdvice-&gt;invoke-&gt;org.springframework.aop.aspectj.AbstractAspectJAdvice.invokeAdviceMethod()-&gt;method.invoke() 执行类是org.springframework.aop.aspectj.AbstractAspectJAdvice的invokeAdviceMethodWithGivenArgs方法
-![image-20250123020448769](/Users/gsbp/Library/Application Support/typora-user-images/image-20250123020448769.png)
 protected Object invokeAdviceMethodWithGivenArgs(Object[] args) throws Throwable {Object[] actualArgs = args;if (this.aspectJAdviceMethod.getParameterCount() == 0) {actualArgs = null;}try {ReflectionUtils.makeAccessible(this.aspectJAdviceMethod);return this.aspectJAdviceMethod.invoke(this.aspectInstanceFactory.getAspectInstance(), actualArgs);} catch (IllegalArgumentException ex) {throw new AopInvocationException(&#34;Mismatch on arguments to advice method [&#34; &#43; this.aspectJAdviceMethod &#43; &#34;]; pointcut expression [&#34; &#43; this.pointcut.getPointcutExpression() &#43; &#34;]&#34;, ex);} catch (InvocationTargetException ex) {throw ex.getTargetException();}} 直接在AOP依赖下的一个sink点，有着反射执行任意方法的能力，操作空间很大">
 
     
@@ -245,7 +243,7 @@ protected Object invokeAdviceMethodWithGivenArgs(Object[] args) throws Throwable
             <h2 id="前言">前言</h2>
 <p>在浏览文章的时候看见有师傅发现了一条仅依赖于Springboot中的SpringAOP的链，于是自己调试学习了一下</p>
 <h2 id="正文">正文</h2>
-<p>依赖于Spring-AOP和aspectjweaver两个包，但是springboot中的spring-boot-starter-aop自带包含这俩类，可以说是和Jackson一样通杀springboot的链子了</p>
+<p>依赖于Spring-AOP和aspectjweaver两个包，但是springboot中的spring-boot-starter-aop自带包含这俩类</p>
 <h3 id="流程">流程</h3>
 <p>调用链如下</p>
 <pre tabindex="0"><code>JdkDynamicAopProxy.invoke()-&gt;
@@ -254,7 +252,7 @@ AspectJAroundAdvice-&gt;invoke-&gt;
 org.springframework.aop.aspectj.AbstractAspectJAdvice.invokeAdviceMethod()-&gt;
 method.invoke()
 </code></pre><p>执行类是<code>org.springframework.aop.aspectj.AbstractAspectJAdvice</code>的<strong>invokeAdviceMethodWithGivenArgs</strong>方法</p>
-<p>![image-20250123020448769](/Users/gsbp/Library/Application Support/typora-user-images/image-20250123020448769.png)</p>
+<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250123020448769.png" alt="image-20250123020448769"></p>
 <pre tabindex="0"><code>    protected Object invokeAdviceMethodWithGivenArgs(Object[] args) throws Throwable {
         Object[] actualArgs = args;
         if (this.aspectJAdviceMethod.getParameterCount() == 0) {
@@ -467,6 +465,9 @@ public class main {
                 
             </div>
             <div class="has-text-right">
+                
+                <p>Next post</p>
+                <a href="http://localhost:1313/post/2025n1junior-wp/">[2025]N1junior-WP</a>
                 
             </div>
         </section>
