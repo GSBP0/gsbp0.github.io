@@ -12,3 +12,6 @@ layout = "friends"
 {{< friend name="Kengwang" url="https://blog.kengwang.com.cn" logo="https://cdn.jsdelivr.net/gh/kengwang/CDN@main/avatar.png"  word="Stay Cool~">}}
 
 {{< friend name="J1rry" url="https://j1rry-learn.github.io/" logo="https://j1rry-learn.github.io/img.png" word="SYCのWeber" >}}
+
+{{< friend name="adwa" url="https://languag3.github.io/" logo="https://languag3.github.io/images/avatar.jpg" word="0XFFF-Cryptor" >}}
+
