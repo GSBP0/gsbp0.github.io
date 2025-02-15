@@ -398,7 +398,14 @@ err found in post request, error response code: 403 Forbidden.
         Alibaba Cloud Metadata API available in http://100.100.100.200/latest/meta-data/
         Docs: https://help.aliyun.com/knowledge_detail/49122.html
 </code></pre><p>然后去看文档</p>
-<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250119001027524.png" alt="image-20250119001027524"></p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250119001027524.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250119001027524.png" alt="image-20250119001027524"  />
+</a>
+</div>
+
+</p>
 <p>很明显在题目内是没有开加固模式的,我们这里直接访问就好</p>
 <p>然后拿到了一个ak/sk</p>
 <pre tabindex="0"><code> {
@@ -410,12 +417,26 @@ err found in post request, error response code: 403 Forbidden.
   &#34;Code&#34; : &#34;Success&#34;
 }
 </code></pre><p>很明显就是要我们去oss🪣里看flag，上去发现被删了，不过没多大问题，这里我们看之前版本的内容就好了</p>
-<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250119001224588.png" alt="image-20250119001224588"></p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250119001224588.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250119001224588.png" alt="image-20250119001224588"  />
+</a>
+</div>
+
+</p>
 <h2 id="su_blog">SU_blog</h2>
 <p>注册接口有个任意用户密码重置的洞，这里直接用admin做用户名就能重置admin的密码了</p>
 <p>也省了后面爆破jwt密钥的操作</p>
 <p>看到article里的传参，很明显的文件路径，这里尝试一下能不能路径穿越</p>
-<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250119001454706.png" alt="image-20250119001454706"></p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250119001454706.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250119001454706.png" alt="image-20250119001454706"  />
+</a>
+</div>
+
+</p>
 <p>发现加<code>../</code>和不加是一样的，猜测后端进行了replace操作</p>
 <p>所以试一下双写<code>..../</code>，然后就能读了</p>
 <p>读到源码和waf(waf我这里用waf&hellip;/py来绕过读到)</p>
@@ -643,9 +664,23 @@ if __name__ == &#39;__main__&#39;:
 <p>再根据去年出的一个洞，由php -S开启的服务在特定版本下能够读取源码</p>
 <p><a href="https://cloud.tencent.com/developer/article/2235691">https://cloud.tencent.com/developer/article/2235691</a></p>
 <p>所以这里也是有模学样的拿到源码</p>
-<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250119002351188.png" alt="image-20250119002351188"></p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250119002351188.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250119002351188.png" alt="image-20250119002351188"  />
+</a>
+</div>
+
+</p>
 <p>后续打的时候碰到别人写的shell，然后用源码泄漏看参数就直接打进去了(这也是公共环境做题思路的一部分叭xsl)</p>
-<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250119002449472.png" alt="image-20250119002449472"></p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250119002449472.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250119002449472.png" alt="image-20250119002449472"  />
+</a>
+</div>
+
+</p>
 
         </div>
     </div>
@@ -680,12 +715,18 @@ if __name__ == &#39;__main__&#39;:
         </main><footer class="footer">
     <div class="content has-text-centered">
     <span>&copy; 2025 <a href="http://localhost:1313/">GSBP&#39;s Blog</a></span>
+    
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+    <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+    
     <span>
         Powered by
         <a href="https://gohugo.io/" target="_blank">Hugo</a> &
         <a href="https://github.com/hotjuicew/hugo-JuiceBar" target="_blank">JuiceBar</a>
     </span>
     </div>
-  </footer></body>
+  </footer>
+</body>
 </html>
 

@@ -19,6 +19,13 @@ org.springframework.aop.aspectj.AbstractAspectJAdvice.invokeAdviceMethod()-&gt;
 method.invoke()
 执行类是org.springframework.aop.aspectj.AbstractAspectJAdvice的invokeAdviceMethodWithGivenArgs方法
 
+
+
+
+
+
+
+
     protected Object invokeAdviceMethodWithGivenArgs(Object[] args) throws Throwable {
         Object[] actualArgs = args;
         if (this.aspectJAdviceMethod.getParameterCount() == 0) {
@@ -252,7 +259,14 @@ AspectJAroundAdvice-&gt;invoke-&gt;
 org.springframework.aop.aspectj.AbstractAspectJAdvice.invokeAdviceMethod()-&gt;
 method.invoke()
 </code></pre><p>执行类是<code>org.springframework.aop.aspectj.AbstractAspectJAdvice</code>的<strong>invokeAdviceMethodWithGivenArgs</strong>方法</p>
-<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250123020448769.png" alt="image-20250123020448769"></p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250123020448769.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250123020448769.png" alt="image-20250123020448769"  />
+</a>
+</div>
+
+</p>
 <pre tabindex="0"><code>    protected Object invokeAdviceMethodWithGivenArgs(Object[] args) throws Throwable {
         Object[] actualArgs = args;
         if (this.aspectJAdviceMethod.getParameterCount() == 0) {
@@ -270,11 +284,32 @@ method.invoke()
     }
 </code></pre><p>直接在AOP依赖下的一个sink点，有着反射执行任意方法的能力，操作空间很大</p>
 <p>在他的实现子类，在他的子类基本上invoke(before)方法的都调用了他的<code>invokeAdviceMethod</code>方法的，所以我们只需要找到一个方法能够调用invoke(before)即可</p>
-<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250123021508701.png" alt="image-20250123021508701"></p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250123021508701.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250123021508701.png" alt="image-20250123021508701"  />
+</a>
+</div>
+
+</p>
 <p>然后下一步找到了<code>ReflectiveMethodInvocation</code>类,他的proceed就能够满足我们上面的要求</p>
-<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250123021705034.png" alt="image-20250123021705034"></p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250123021705034.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250123021705034.png" alt="image-20250123021705034"  />
+</a>
+</div>
+
+</p>
 <p>接下来在<code>JdkDynamicAopProxy</code>的invoke方法将会调用proceed方法</p>
-<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250123223723213.png" alt="image-20250123223723213"></p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250123223723213.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250123223723213.png" alt="image-20250123223723213"  />
+</a>
+</div>
+
+</p>
 <p>这里有一点很有趣，就是<code>ReflectiveMethodInvocation</code>类是没有实现serializable接口的，所以我们不能将这个类放进我们的writeObject里面，但是在<code>JdkDynamicAopProxy</code>直接帮我们new了一个新的出来,也是很巧了</p>
 <p>然后流程大致就是这样，接下来我们说一下payload执行中的一些知识点</p>
 <h3 id="构建payload中所需注意的">构建payload中所需注意的</h3>
@@ -347,9 +382,23 @@ equals()
     }
 </code></pre><p>我们可以发现，不管是那种方式添加进入<code>interceptorList</code>的，其所对应的成员往往是从<code>registry.getInterceptors(advisor);</code>来的</p>
 <p>那这里我们顺藤摸瓜,registry所对应的类是<code>DefaultAdvisorAdapterRegistry</code></p>
-<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250123225810812.png" alt="image-20250123225810812"></p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250123225810812.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250123225810812.png" alt="image-20250123225810812"  />
+</a>
+</div>
+
+</p>
 <p>对应的getInterceptors代码如下</p>
-<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250123225924866.png" alt="image-20250123225924866"></p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250123225924866.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250123225924866.png" alt="image-20250123225924866"  />
+</a>
+</div>
+
+</p>
 <p>那这里我们只有从第一个判断口进入才能够添加interceptors，不过要求是我们的advisor必须实现了MethodInterceotor接口,简单看了一下继承关系，和文章师傅里得出的结论一样：没有同时实现了该接口的advisor类</p>
 <p>面对此种情况，我们使用了动态代理去将<code>MethodInterceotor</code>给advisor类代理上，使其实现双接口</p>
 <p>这里又用到了一次<code>JdkDynamicAopProxy</code>,不过和前面的作用完全不同</p>
@@ -357,7 +406,14 @@ equals()
 <p>最后就是在我们的<code>org.springframework.aop.aspectj.AbstractAspectJAdvice.invokeAdviceMethodWithGivenArgs</code>中</p>
 <pre tabindex="0"><code>this.aspectJAdviceMethod.invoke(this.aspectInstanceFactory.getAspectInstance(), actualArgs);
 </code></pre><p>这里还要从aspectInstanceFactory中获取到一个方法类的实例,文章中是使用了<code>SingletonAspectInstanceFactory</code>这个类</p>
-<p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250123232655590.png" alt="image-20250123232655590"></p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250123232655590.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250123232655590.png" alt="image-20250123232655590"  />
+</a>
+</div>
+
+</p>
 <p>和CC里的ConstantTransformer很相似</p>
 <h2 id="poc">POC</h2>
 <pre tabindex="0"><code>
@@ -438,7 +494,14 @@ public class main {
     }
 
 }
-</code></pre><p><img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250123233035882.png" alt="image-20250123233035882"></p>
+</code></pre><p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250123233035882.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250123233035882.png" alt="image-20250123233035882"  />
+</a>
+</div>
+
+</p>
 <h2 id="参考文章">参考文章</h2>
 <p><a href="https://mp.weixin.qq.com/s/oQ1mFohc332v8U1yA7RaMQ">https://mp.weixin.qq.com/s/oQ1mFohc332v8U1yA7RaMQ</a></p>
 
@@ -478,12 +541,18 @@ public class main {
         </main><footer class="footer">
     <div class="content has-text-centered">
     <span>&copy; 2025 <a href="http://localhost:1313/">GSBP&#39;s Blog</a></span>
+    
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+    <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+    
     <span>
         Powered by
         <a href="https://gohugo.io/" target="_blank">Hugo</a> &
         <a href="https://github.com/hotjuicew/hugo-JuiceBar" target="_blank">JuiceBar</a>
     </span>
     </div>
-  </footer></body>
+  </footer>
+</body>
 </html>
 

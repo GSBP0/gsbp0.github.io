@@ -11,6 +11,7 @@ paginate = 5
 Title = "GSBP's Blog"
 content = "Interesting in CyberSecurity"
 imageUrl = "/img/GSBP.jpg"
+fancybox = true
 
 # To add a new social icon 
 # More social icons can be found in JuiceBar\layouts\partials\svg.html.
