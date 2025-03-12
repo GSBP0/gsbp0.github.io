@@ -192,6 +192,128 @@
   <div class="single-container column is-centered">
     <div class="archive" id="post-container">
       <header class="post-header">
+        <h1 class="post-title hover-underline-animation"><a class="post-link" href="/post/tomcatcve-2025-24813%E5%A4%8D%E7%8E%B0/">[Tomcat]CVE-2025-24813复现</a></h1>
+       
+       
+      </header>
+      <div class="post-content">
+        <div class="excerpt post-summary">
+          <h2 id="前言">前言</h2>
+<p>出了个通告说Tomcat有个新的cve，于是来尝试复现</p>
+<h2 id="通报">通报</h2>
+<p>关于漏洞的通报细节如下</p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250312143659450.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250312143659450.png" alt="image-20250312143659450"  />
+</a>
+</div>
+
+</p>
+<p>一看又是DefaultServlet的put方法上出的洞，这里漏洞利用有两种形式，一个是信息泄漏和篡改，还有一个是反序列化RCE，而且要求的前置项有点多，这里简单列出来</p>
+<h3 id="信息泄漏篡改">信息泄漏/篡改</h3>
+<ul>
+<li>
+<p>ReadOnly为false</p>
+</li>
+<li>
+<p>支持partial PUT方法</p>
+</li>
+<li>
+<p>攻击者知道敏感文件的名称</p>
+</li>
+<li>
+<p>安全敏感文件的上传目标 URL 是公开上传目标 URL 的子目录（？这个看不懂，也不知道啥意思）</p>
+</li>
+</ul>
+<h3 id="反序列化rce">反序列化RCE</h3>
+<ul>
+<li>ReadOnly为false</li>
+<li>支持partial PUT方法</li>
+<li>服务开启以文件为存储形式的持久化链接，并且采用默认位置</li>
+<li>有能够引起反序列化漏洞的依赖</li>
+</ul>
+<h2 id="环境搭建">环境搭建</h2>
+<p>我参考的这篇文章搭建的环境</p>
+<p><a href="https://juejin.cn/post/7331544684290228250">https://juejin.cn/post/7331544684290228250</a></p>
+<p>接下来修改readonly</p>
+<p><code>tomcat目录/conf/web.xml</code></p>
+<pre tabindex="0"><code>    &lt;servlet&gt;
+        &lt;servlet-name&gt;default&lt;/servlet-name&gt;
+        &lt;servlet-class&gt;org.apache.catalina.servlets.DefaultServlet&lt;/servlet-class&gt;
+        &lt;init-param&gt;
+            &lt;param-name&gt;debug&lt;/param-name&gt;
+            &lt;param-value&gt;0&lt;/param-value&gt;
+        &lt;/init-param&gt;
+        &lt;init-param&gt;
+            &lt;param-name&gt;listings&lt;/param-name&gt;
+            &lt;param-value&gt;false&lt;/param-value&gt;
+        &lt;/init-param&gt;
+      &lt;init-param&gt;
+        &lt;param-name&gt;readonly&lt;/param-name&gt;
+        &lt;param-value&gt;false&lt;/param-value&gt;
+      &lt;/init-param&gt;
+        &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
+    &lt;/servlet&gt;
+</code></pre><p>开启持久化链接文件模式</p>
+<p><code>tomcat目录/conf/context.xml</code></p>
+<pre tabindex="0"><code>&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;
+&lt;!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the &#34;License&#34;); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an &#34;AS IS&#34; BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+--&gt;
+&lt;!-- The contents of this file will be loaded for each web application --&gt;
+&lt;Context&gt;
+
+    &lt;!-- Default set of monitored resources. If one of these changes, the    --&gt;
+    &lt;!-- web application will be reloaded.                                   --&gt;
+    &lt;WatchedResource&gt;WEB-INF/web.xml&lt;/WatchedResource&gt;
+    &lt;WatchedResource&gt;WEB-INF/tomcat-web.xml&lt;/WatchedResource&gt;
+    &lt;WatchedResource&gt;${catalina.base}/conf/web.xml&lt;/WatchedResource&gt;
+
+    &lt;!-- Uncomment this to disable session persistence across Tomcat restarts --&gt;
+    &lt;!--
+    &lt;Manager pathname=&#34;&#34; /&gt;
+    --&gt;
+  &lt;Manager className=&#34;org.apache.catalina.session.PersistentManager&#34;
+           debug=&#34;0&#34;
+           saveOnRestart=&#34;false&#34;
+           maxActiveSession=&#34;-1&#34;
+           minIdleSwap=&#34;-1&#34;
+           maxIdleSwap=&#34;-1&#34;
+           maxIdleBackup=&#34;-1&#34;&gt;
+    &lt;Store className=&#34;org.apache.catalina.session.FileStore&#34; directory=&#34;&#34;/&gt;
+  &lt;/Manager&gt;
+&lt;/Context&gt;
+</code></pre><p>往pom.xml下塞入CC依赖</p>
+        </div>
+        
+        <div class="post-time-container">
+          <span class="post-time"> 2025-03-12 </span>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</article>
+
+    
+        <article class="post">
+  <div class="single-container column is-centered">
+    <div class="archive" id="post-container">
+      <header class="post-header">
         <h1 class="post-title hover-underline-animation"><a class="post-link" href="/post/2025n1junior-wp/">[2025]N1junior-WP</a></h1>
        
        
