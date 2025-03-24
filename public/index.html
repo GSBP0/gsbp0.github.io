@@ -192,6 +192,96 @@
   <div class="single-container column is-centered">
     <div class="archive" id="post-container">
       <header class="post-header">
+        <h1 class="post-title hover-underline-animation"><a class="post-link" href="/post/%E8%BD%AF%E4%BB%B6%E6%94%BB%E9%98%B2%E8%B5%9B%E7%8E%B0%E5%9C%BA%E8%B5%9B%E4%B8%8A%E5%AF%B9justdeserialize%E6%94%BB%E5%87%BB%E7%9A%84%E5%87%A0%E6%AC%A1%E5%B0%9D%E8%AF%95/">软件攻防赛现场赛上对justDeserialize攻击的几次尝试</a></h1>
+       
+       
+      </header>
+      <div class="post-content">
+        <div class="excerpt post-summary">
+          <h2 id="前言">前言</h2>
+<p>一个关于本地打通无数次但远程0次的故事</p>
+<h2 id="题目分析">题目分析</h2>
+<p>题目直接给了一个反序列化的入口点</p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250324233735530.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250324233735530.png" alt="image-20250324233735530"  />
+</a>
+</div>
+
+</p>
+<p>其中有两层防御</p>
+<ul>
+<li>对我们的反序列化数据流中的明文进行简单判断过滤</li>
+<li>使用了一个自定义反序列化类来对我们的反序列化数据流进行反序列化</li>
+</ul>
+<p>其中自定义化反序列化类代码如下</p>
+<pre tabindex="0"><code>//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by FernFlower decompiler)
+//
+
+package com.example.ezjav.utils;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.InvalidClassException;
+import java.io.ObjectInputStream;
+import java.io.ObjectStreamClass;
+import java.util.ArrayList;
+
+public class MyObjectInputStream extends ObjectInputStream {
+    private String[] denyClasses;
+
+    public MyObjectInputStream(ByteArrayInputStream var1) throws IOException {
+        super(var1);
+        ArrayList&lt;String&gt; classList = new ArrayList();
+        InputStream file = MyObjectInputStream.class.getResourceAsStream(&#34;/blacklist.txt&#34;);
+        BufferedReader var2 = new BufferedReader(new InputStreamReader(file));
+
+        String var4;
+        while((var4 = var2.readLine()) != null) {
+            classList.add(var4.trim());
+        }
+
+        this.denyClasses = new String[classList.size()];
+        classList.toArray(this.denyClasses);
+    }
+
+    protected Class&lt;?&gt; resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException {
+        String className = desc.getName();
+        int var5 = this.denyClasses.length;
+
+        for(int var6 = 0; var6 &lt; var5; ++var6) {
+            String denyClass = this.denyClasses[var6];
+            if (className.startsWith(denyClass)) {
+                throw new InvalidClassException(&#34;Unauthorized deserialization attempt&#34;, className);
+            }
+        }
+
+        return super.resolveClass(desc);
+    }
+}
+</code></pre><p>从<strong>blacklist</strong>中读取baned类，且在<code>resolveClass</code>中进行过滤</p>
+        </div>
+        
+        <div class="post-time-container">
+          <span class="post-time"> 2025-03-24 </span>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</article>
+
+    
+        <article class="post">
+  <div class="single-container column is-centered">
+    <div class="archive" id="post-container">
+      <header class="post-header">
         <h1 class="post-title hover-underline-animation"><a class="post-link" href="/post/tomcatcve-2025-24813%E5%A4%8D%E7%8E%B0%E5%8F%8A%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/">[Tomcat]CVE-2025-24813复现及原理分析</a></h1>
        
        
