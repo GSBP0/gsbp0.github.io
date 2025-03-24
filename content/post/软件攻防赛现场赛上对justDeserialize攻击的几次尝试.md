@@ -4,6 +4,7 @@ draft = false
 title = '软件攻防赛现场赛上对justDeserialize攻击的几次尝试'
 author='GSBP'
 categories=["Java安全","WP"]
+
 +++
 
 ## 前言
@@ -240,7 +241,7 @@ public class Test {
 
 #### 第一种方法-Ldap_SERIALIZE_DATA
 
-家喻户晓的办法，因为题目jar包上的编译版本是11,还没有受到强制类隔离的要求，可以随便打`Jackson`那一套反序列化，或者是再走一边我们的AOP链但触发类换成可RCE的`Template`类
+家喻户晓的办法，因为题目jar包上的编译版本是11,还没有受到强制类隔离的要求，可以随便打`Jackson`那一套反序列化，或者是再走一边我们的AOP链但触发类换成可RCE的`TemplateImpl`类
 
 这里我用的JNDIMap
 
