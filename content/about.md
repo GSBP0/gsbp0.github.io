@@ -8,7 +8,7 @@ layout='about'
 
 一名大二在读学生
 
-Syclover主力成员
+Syclover核心成员,主力成员&Nu1L成员
 
 对各种安全感兴趣，目前主要学习的还的是Web安全（Java 安全、偶然也会学点云安全,等）
 
