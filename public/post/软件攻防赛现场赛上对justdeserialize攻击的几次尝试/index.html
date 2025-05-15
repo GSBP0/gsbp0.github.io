@@ -255,6 +255,7 @@ public class MyObjectInputStream extends ObjectInputStream {
       </ul>
     </li>
     <li><a href="#结尾">结尾</a></li>
+    <li><a href="#后记">后记</a></li>
   </ul>
 </nav></div>
             </aside>
@@ -478,7 +479,7 @@ public class Test {
 }
 </code></pre><h3 id="第二步">第二步</h3>
 <h4 id="第一种方法-ldap_serialize_data">第一种方法-Ldap_SERIALIZE_DATA</h4>
-<p>家喻户晓的办法，因为题目jar包上的编译版本是11,还没有受到强制类隔离的要求，可以随便打<code>Jackson</code>那一套反序列化，或者是再走一边我们的AOP链但触发类换成可RCE的<code>Template</code>类</p>
+<p>家喻户晓的办法，因为题目jar包上的编译版本是11,还没有受到强制类隔离的要求，可以随便打<code>Jackson</code>那一套反序列化，或者是再走一边我们的AOP链但触发类换成可RCE的<code>TemplateImpl</code>类</p>
 <p>这里我用的JNDIMap</p>
 <p>
 <div class="post-img-view">
@@ -534,6 +535,8 @@ public class Test {
 <p>那么问题再次来袭，我抱着满怀期待再去打远程的时候，又没通，直接道心崩溃了，后续不知道怎么打了，并且也没有题目环境，不知道啥问题qaq</p>
 <h2 id="结尾">结尾</h2>
 <p>不是很清楚这远程的环境，比赛的时候破大防，如果有师傅在比赛的时候打通了这道题希望能告诉我一下咋打的QAQ</p>
+<h2 id="后记">后记</h2>
+<p>这几天在用web-chains的时候突然看见他的<code> JNDIReferencePayload</code>是基于<code> javaSerializedData</code>生成的，所以这可能是一个打失败的原因,不过根据我在赛场上的感觉来说，我是能够感觉到我在打入payload的时候后端的延迟和我在本地打的延迟是同一个原因(hsql反序列化)，所以远程环境为什么打不通，那估计是布吉岛了</p>
 
         </div>
     </div>
@@ -558,6 +561,9 @@ public class Test {
                 
             </div>
             <div class="has-text-right">
+                
+                <p>Next post</p>
+                <a href="http://localhost:1313/post/k8slanparty-wp/">K8slanparty WP</a>
                 
             </div>
         </section>

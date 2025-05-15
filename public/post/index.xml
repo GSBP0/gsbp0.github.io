@@ -6,8 +6,15 @@
     <description>Recent content in Posts on GSBP&#39;s Blog</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 24 Mar 2025 22:00:00 +0800</lastBuildDate>
+    <lastBuildDate>Thu, 15 May 2025 16:57:31 +0800</lastBuildDate>
     <atom:link href="http://localhost:1313/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>K8slanparty WP</title>
+      <link>http://localhost:1313/post/k8slanparty-wp/</link>
+      <pubDate>Thu, 15 May 2025 16:57:31 +0800</pubDate>
+      <guid>http://localhost:1313/post/k8slanparty-wp/</guid>
+      <description>&lt;hr&gt;&#xA;&lt;h2 id=&#34;dnsing-with-the-stars&#34;&gt;DNSing with the stars&lt;/h2&gt;&#xA;&lt;hr&gt;&#xA;&lt;blockquote&gt;&#xA;&lt;p&gt;You have shell access to compromised a Kubernetes pod at the bottom of this page, and your next objective is to compromise other internal services further.&lt;/p&gt;&#xA;&lt;p&gt;As a warmup, utilize &lt;a href=&#34;https://thegreycorner.com/2023/12/13/kubernetes-internal-service-discovery.html#kubernetes-dns-to-the-partial-rescue&#34;&gt;DNS scanning&lt;/a&gt; to uncover hidden internal services and obtain the flag. We have &amp;ldquo;loaded your machine with &lt;a href=&#34;https://gist.github.com/nirohfeld/c596898673ead369cb8992d97a1c764e&#34;&gt;dnscan&lt;/a&gt; to ease this process for further challenges.&lt;/p&gt;&#xA;&lt;p&gt;All the flags in the challenge follow the same format: wiz_k8s_lan_party{*}&lt;/p&gt;&#xA;&lt;/blockquote&gt;&#xA;&lt;hr&gt;&#xA;&lt;p&gt;根据题目信息可以知道是利用dnscan寻找k8s主机&lt;/p&gt;&#xA;&lt;p&gt;通过env可以发现k8s的一些信息，比如service主机地址&lt;/p&gt;</description>
+    </item>
     <item>
       <title>软件攻防赛现场赛上对justDeserialize攻击的几次尝试</title>
       <link>http://localhost:1313/post/%E8%BD%AF%E4%BB%B6%E6%94%BB%E9%98%B2%E8%B5%9B%E7%8E%B0%E5%9C%BA%E8%B5%9B%E4%B8%8A%E5%AF%B9justdeserialize%E6%94%BB%E5%87%BB%E7%9A%84%E5%87%A0%E6%AC%A1%E5%B0%9D%E8%AF%95/</link>
