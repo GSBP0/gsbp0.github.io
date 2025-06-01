@@ -50,6 +50,8 @@
     <loc>http://localhost:1313/about/</loc>
     <lastmod>2025-01-17T19:38:41+08:00</lastmod>
   </url><url>
+    <loc>http://localhost:1313/post/d3ctf2025/</loc>
+  </url><url>
     <loc>http://localhost:1313/tags/</loc>
   </url>
 </urlset>

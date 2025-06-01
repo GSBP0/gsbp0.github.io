@@ -684,6 +684,84 @@ method.invoke()
 </article>
 
     
+        <article class="post">
+  <div class="single-container column is-centered">
+    <div class="archive" id="post-container">
+      <header class="post-header">
+        <h1 class="post-title hover-underline-animation"><a class="post-link" href="/post/d3ctf2025/">D3CTF 2025-WP</a></h1>
+       
+       
+      </header>
+      <div class="post-content">
+        <div class="excerpt post-summary">
+          <h2 id="前言">前言</h2>
+<p>跟着Syc打的，web方向差一题ak，算是有点可惜了</p>
+<h2 id="d3model">d3model</h2>
+<p>题目内就一个app.py</p>
+<pre tabindex="0"><code>import keras
+from flask import Flask, request, jsonify
+import os
+
+
+def is_valid_model(modelname):
+    try:
+        keras.models.load_model(modelname)
+    except Exception as e:
+        print(e)
+        return False
+    return True
+
+app = Flask(__name__)
+
+@app.route(&#39;/&#39;, methods=[&#39;GET&#39;])
+def index():
+    return open(&#39;index.html&#39;).read()
+
+
+@app.route(&#39;/upload&#39;, methods=[&#39;POST&#39;])
+def upload_file():
+    if &#39;file&#39; not in request.files:
+        return jsonify({&#39;error&#39;: &#39;No file part&#39;}), 400
+    
+    file = request.files[&#39;file&#39;]
+    
+    if file.filename == &#39;&#39;:
+        return jsonify({&#39;error&#39;: &#39;No selected file&#39;}), 400
+    
+    MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB
+    file.seek(0, os.SEEK_END)
+    file_size = file.tell()
+    file.seek(0)
+    
+    if file_size &gt; MAX_FILE_SIZE:
+        return jsonify({&#39;error&#39;: &#39;File size exceeds 50MB limit&#39;}), 400
+    
+    filepath = os.path.join(&#39;./&#39;, &#39;test.keras&#39;)
+    if os.path.exists(filepath):
+        os.remove(filepath)
+    file.save(filepath)
+    
+    if is_valid_model(filepath):
+        return jsonify({&#39;message&#39;: &#39;Model is valid&#39;}), 200
+    else:
+
+        return jsonify({&#39;error&#39;: &#39;Invalid model file&#39;}), 400
+
+if __name__ == &#39;__main__&#39;:
+    app.run(host=&#39;0.0.0.0&#39;, port=5001)
+</code></pre><p>代码也没啥好审的，很明显就只有一个keras.models.load_model(modelname)能当作sink点，去网上搜一下相关漏洞就能找到现成的payload，题目不出网，外带到index.html即可</p>
+        </div>
+        
+        <div class="post-time-container">
+          <span class="post-time"> 0001-01-01 </span>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</article>
+
+    
     <hr>
 <section class="pagination" >
     

