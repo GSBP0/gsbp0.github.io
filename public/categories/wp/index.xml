@@ -6,8 +6,15 @@
     <description>Recent content in WP on GSBP&#39;s Blog</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 15 May 2025 16:57:31 +0800</lastBuildDate>
+    <lastBuildDate>Sun, 01 Jun 2025 21:00:00 +0800</lastBuildDate>
     <atom:link href="http://localhost:1313/categories/wp/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>D3CTF 2025-WP</title>
+      <link>http://localhost:1313/post/d3ctf2025/</link>
+      <pubDate>Sun, 01 Jun 2025 21:00:00 +0800</pubDate>
+      <guid>http://localhost:1313/post/d3ctf2025/</guid>
+      <description>&lt;h2 id=&#34;前言&#34;&gt;前言&lt;/h2&gt;&#xA;&lt;p&gt;跟着Syc打的，web方向差一题ak，算是有点可惜了&lt;/p&gt;&#xA;&lt;h2 id=&#34;d3model&#34;&gt;d3model&lt;/h2&gt;&#xA;&lt;p&gt;题目内就一个app.py&lt;/p&gt;&#xA;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;import keras&#xD;&#xA;from flask import Flask, request, jsonify&#xD;&#xA;import os&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;def is_valid_model(modelname):&#xD;&#xA;    try:&#xD;&#xA;        keras.models.load_model(modelname)&#xD;&#xA;    except Exception as e:&#xD;&#xA;        print(e)&#xD;&#xA;        return False&#xD;&#xA;    return True&#xD;&#xA;&#xD;&#xA;app = Flask(__name__)&#xD;&#xA;&#xD;&#xA;@app.route(&amp;#39;/&amp;#39;, methods=[&amp;#39;GET&amp;#39;])&#xD;&#xA;def index():&#xD;&#xA;    return open(&amp;#39;index.html&amp;#39;).read()&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;@app.route(&amp;#39;/upload&amp;#39;, methods=[&amp;#39;POST&amp;#39;])&#xD;&#xA;def upload_file():&#xD;&#xA;    if &amp;#39;file&amp;#39; not in request.files:&#xD;&#xA;        return jsonify({&amp;#39;error&amp;#39;: &amp;#39;No file part&amp;#39;}), 400&#xD;&#xA;    &#xD;&#xA;    file = request.files[&amp;#39;file&amp;#39;]&#xD;&#xA;    &#xD;&#xA;    if file.filename == &amp;#39;&amp;#39;:&#xD;&#xA;        return jsonify({&amp;#39;error&amp;#39;: &amp;#39;No selected file&amp;#39;}), 400&#xD;&#xA;    &#xD;&#xA;    MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB&#xD;&#xA;    file.seek(0, os.SEEK_END)&#xD;&#xA;    file_size = file.tell()&#xD;&#xA;    file.seek(0)&#xD;&#xA;    &#xD;&#xA;    if file_size &amp;gt; MAX_FILE_SIZE:&#xD;&#xA;        return jsonify({&amp;#39;error&amp;#39;: &amp;#39;File size exceeds 50MB limit&amp;#39;}), 400&#xD;&#xA;    &#xD;&#xA;    filepath = os.path.join(&amp;#39;./&amp;#39;, &amp;#39;test.keras&amp;#39;)&#xD;&#xA;    if os.path.exists(filepath):&#xD;&#xA;        os.remove(filepath)&#xD;&#xA;    file.save(filepath)&#xD;&#xA;    &#xD;&#xA;    if is_valid_model(filepath):&#xD;&#xA;        return jsonify({&amp;#39;message&amp;#39;: &amp;#39;Model is valid&amp;#39;}), 200&#xD;&#xA;    else:&#xD;&#xA;&#xD;&#xA;        return jsonify({&amp;#39;error&amp;#39;: &amp;#39;Invalid model file&amp;#39;}), 400&#xD;&#xA;&#xD;&#xA;if __name__ == &amp;#39;__main__&amp;#39;:&#xD;&#xA;    app.run(host=&amp;#39;0.0.0.0&amp;#39;, port=5001)&#xA;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;代码也没啥好审的，很明显就只有一个keras.models.load_model(modelname)能当作sink点，去网上搜一下相关漏洞就能找到现成的payload，题目不出网，外带到index.html即可&lt;/p&gt;</description>
+    </item>
     <item>
       <title>K8slanparty WP</title>
       <link>http://localhost:1313/post/k8slanparty-wp/</link>
@@ -42,13 +49,6 @@
       <pubDate>Sat, 18 Jan 2025 19:38:41 +0800</pubDate>
       <guid>http://localhost:1313/post/2025suctf/</guid>
       <description>2025年的第一场XCTF</description>
-    </item>
-    <item>
-      <title>D3CTF 2025-WP</title>
-      <link>http://localhost:1313/post/d3ctf2025/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/post/d3ctf2025/</guid>
-      <description>&lt;h2 id=&#34;前言&#34;&gt;前言&lt;/h2&gt;&#xA;&lt;p&gt;跟着Syc打的，web方向差一题ak，算是有点可惜了&lt;/p&gt;&#xA;&lt;h2 id=&#34;d3model&#34;&gt;d3model&lt;/h2&gt;&#xA;&lt;p&gt;题目内就一个app.py&lt;/p&gt;&#xA;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;import keras&#xD;&#xA;from flask import Flask, request, jsonify&#xD;&#xA;import os&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;def is_valid_model(modelname):&#xD;&#xA;    try:&#xD;&#xA;        keras.models.load_model(modelname)&#xD;&#xA;    except Exception as e:&#xD;&#xA;        print(e)&#xD;&#xA;        return False&#xD;&#xA;    return True&#xD;&#xA;&#xD;&#xA;app = Flask(__name__)&#xD;&#xA;&#xD;&#xA;@app.route(&amp;#39;/&amp;#39;, methods=[&amp;#39;GET&amp;#39;])&#xD;&#xA;def index():&#xD;&#xA;    return open(&amp;#39;index.html&amp;#39;).read()&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;@app.route(&amp;#39;/upload&amp;#39;, methods=[&amp;#39;POST&amp;#39;])&#xD;&#xA;def upload_file():&#xD;&#xA;    if &amp;#39;file&amp;#39; not in request.files:&#xD;&#xA;        return jsonify({&amp;#39;error&amp;#39;: &amp;#39;No file part&amp;#39;}), 400&#xD;&#xA;    &#xD;&#xA;    file = request.files[&amp;#39;file&amp;#39;]&#xD;&#xA;    &#xD;&#xA;    if file.filename == &amp;#39;&amp;#39;:&#xD;&#xA;        return jsonify({&amp;#39;error&amp;#39;: &amp;#39;No selected file&amp;#39;}), 400&#xD;&#xA;    &#xD;&#xA;    MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB&#xD;&#xA;    file.seek(0, os.SEEK_END)&#xD;&#xA;    file_size = file.tell()&#xD;&#xA;    file.seek(0)&#xD;&#xA;    &#xD;&#xA;    if file_size &amp;gt; MAX_FILE_SIZE:&#xD;&#xA;        return jsonify({&amp;#39;error&amp;#39;: &amp;#39;File size exceeds 50MB limit&amp;#39;}), 400&#xD;&#xA;    &#xD;&#xA;    filepath = os.path.join(&amp;#39;./&amp;#39;, &amp;#39;test.keras&amp;#39;)&#xD;&#xA;    if os.path.exists(filepath):&#xD;&#xA;        os.remove(filepath)&#xD;&#xA;    file.save(filepath)&#xD;&#xA;    &#xD;&#xA;    if is_valid_model(filepath):&#xD;&#xA;        return jsonify({&amp;#39;message&amp;#39;: &amp;#39;Model is valid&amp;#39;}), 200&#xD;&#xA;    else:&#xD;&#xA;&#xD;&#xA;        return jsonify({&amp;#39;error&amp;#39;: &amp;#39;Invalid model file&amp;#39;}), 400&#xD;&#xA;&#xD;&#xA;if __name__ == &amp;#39;__main__&amp;#39;:&#xD;&#xA;    app.run(host=&amp;#39;0.0.0.0&amp;#39;, port=5001)&#xA;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;代码也没啥好审的，很明显就只有一个keras.models.load_model(modelname)能当作sink点，去网上搜一下相关漏洞就能找到现成的payload，题目不出网，外带到index.html即可&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>
