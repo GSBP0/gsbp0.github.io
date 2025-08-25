@@ -534,11 +534,11 @@ print(&#34;[+] Malicious model ready&#34;)
 </p>
 <h2 id="d3invitation">d3invitation</h2>
 <p>环境有两个，一个oss端，一个web端</p>
-<p>Web端这边测端口一共测出来三个</p>
+<p>Web端这边测api一共测出来四个</p>
 <ul>
 <li>/api/genSTSCreds	生成AK,SK还有session_token</li>
 <li>/api/putObject              拿着上面生成的凭证往储存桶里放object</li>
-<li>/api/putObject              读取桶下的object</li>
+<li>/api/getObject              读取桶下的object</li>
 <li>/invitation                      没啥吊用，生成邀请函的页面</li>
 </ul>
 <p>这里token我们可以解一下里面的内容</p>
@@ -648,7 +648,216 @@ list_buckets()
 list_objects()
 download_file(&#34;flag&#34;, &#34;downloaded_example.txt&#34;)
 </code></pre><h2 id="tidy-quic">tidy quic</h2>
-<p>在写了在写了</p>
+<p>这题考的是http3协议</p>
+<p>先分析题目</p>
+<pre tabindex="0"><code>package main
+
+import (
+	&#34;bytes&#34;
+	&#34;errors&#34;
+	&#34;github.com/libp2p/go-buffer-pool&#34;
+	&#34;github.com/quic-go/quic-go/http3&#34;
+	&#34;io&#34;
+	&#34;log&#34;
+	&#34;net/http&#34;
+)
+
+var p pool.BufferPool
+var ErrWAF = errors.New(&#34;WAF&#34;)
+
+func main() {
+	go func() {
+		err := http.ListenAndServeTLS(&#34;:8088&#34;, &#34;./server.crt&#34;, &#34;./server.key&#34;, &amp;mux{})
+		log.Fatalln(err)
+	}()
+	go func() {
+		err := http3.ListenAndServeQUIC(&#34;:8088&#34;, &#34;./server.crt&#34;, &#34;./server.key&#34;, &amp;mux{})
+		log.Fatalln(err)
+	}()
+	select {}
+}
+
+type mux struct {
+}
+
+func (*mux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		_, _ = w.Write([]byte(&#34;Hello D^3CTF 2025,I&#39;m tidy quic in web.&#34;))
+		return
+	}
+	if r.Method != http.MethodPost {
+		w.WriteHeader(400)
+		return
+	}
+
+	var buf []byte
+	length := int(r.ContentLength)
+	if length == -1 {
+		var err error
+		buf, err = io.ReadAll(textInterrupterWrap(r.Body))
+		if err != nil {
+			if errors.Is(err, ErrWAF) {
+				w.WriteHeader(400)
+				_, _ = w.Write([]byte(&#34;WAF&#34;))
+			} else {
+				w.WriteHeader(500)
+				_, _ = w.Write([]byte(&#34;error&#34;))
+			}
+			return
+		}
+	} else {
+		buf = p.Get(length)
+		defer p.Put(buf)
+		rd := textInterrupterWrap(r.Body)
+		i := 0
+		for {
+			n, err := rd.Read(buf[i:])
+			if err != nil {
+				if errors.Is(err, io.EOF) {
+					break
+				} else if errors.Is(err, ErrWAF) {
+					w.WriteHeader(400)
+					_, _ = w.Write([]byte(&#34;WAF&#34;))
+					return
+				} else {
+					w.WriteHeader(500)
+					_, _ = w.Write([]byte(&#34;error&#34;))
+					return
+				}
+			}
+			i += n
+		}
+	} 
+	if !bytes.HasPrefix(buf, []byte(&#34;I want&#34;)) {
+		_, _ = w.Write([]byte(&#34;Sorry I&#39;m not clear what you want.&#34;))
+		return
+	}
+	item := bytes.TrimSpace(bytes.TrimPrefix(buf, []byte(&#34;I want&#34;)))
+	if bytes.Equal(item, []byte(&#34;flag&#34;)) {
+		_, _ = w.Write([]byte(&#34;flfag{test}&#34;))
+	} else {
+		_, _ = w.Write(item)
+	}
+}
+
+type wrap struct {
+	io.ReadCloser
+	ban []byte
+	idx int
+}
+
+func (w *wrap) Read(p []byte) (int, error) {
+	n, err := w.ReadCloser.Read(p)
+	if err != nil &amp;&amp; !errors.Is(err, io.EOF) {
+		return n, err
+	}
+	for i := 0; i &lt; n; i++ {
+		if p[i] == w.ban[w.idx] {
+			w.idx++
+			if w.idx == len(w.ban) {
+				return n, ErrWAF
+			}
+		} else {
+			w.idx = 0
+		}
+	}
+	return n, err
+}
+
+func textInterrupterWrap(rc io.ReadCloser) io.ReadCloser {
+	return &amp;wrap{
+		rc, []byte(&#34;flag&#34;), 0,
+	}
+}
+</code></pre><p>我们在go中的题目主要要关注的点就是在于题目中的全局变量，这差不多是经验之谈了hh</p>
+<p>所以我们可以看到题目中的<code>var p pool.BufferPool</code>，一个缓冲池</p>
+<p>在http通信中，如果<code>Content-Length!=-1</code>(即没写CL头)，则不会调用缓冲区来读取数据，反之则会使用</p>
+<pre tabindex="0"><code>		buf = p.Get(length)
+		defer p.Put(buf)
+</code></pre><p>这里主要在于<code>defer p.Put(buf)</code>，观察代码上下文也没有对已经写入了body数据的buf缓冲区进行重置清零的操作，而是直接将她放回的缓冲池,这就会导致缓冲池会出现一个被污染的状态，下一次从缓冲池中取出缓冲区也会受到这些数据的影响</p>
+<p>第一次</p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250602150550525.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250602150550525.png" alt="image-20250602150550525"  />
+</a>
+</div>
+
+</p>
+<p>第二次</p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250602150620439.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250602150620439.png" alt="image-20250602150620439"  />
+</a>
+</div>
+
+</p>
+<p>所以我们现在的想法就是，让上次的buf影响到下次的结果</p>
+<p>我们可以让第一次的数据为a bcde flag 第二次的为i want，这样在被污染过后就会成为i want flag，注意这里两次的请求的Content-Length都要为11，即使第二次只post了6个数据，否则取不到对应长度的buf</p>
+<p>接下来的操作体现了http3和http2的区别</p>
+<p>http2</p>
+<p>省略了前面post i want flag的一步</p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250602151342432.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250602151342432.png" alt="image-20250602151342432"  />
+</a>
+</div>
+
+</p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250602151408560.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250602151408560.png" alt="image-20250602151408560"  />
+</a>
+</div>
+
+</p>
+<p>结果在读取我们post的10个数据之后，读取行为并没结束，http2还在等待剩下的一位继续输入而并没有发送eof结束</p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250602151504499.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250602151504499.png" alt="image-20250602151504499"  />
+</a>
+</div>
+
+</p>
+<p>http3</p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250602151644729.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250602151644729.png" alt="image-20250602151644729"  />
+</a>
+</div>
+
+</p>
+<p>结果http3在一次读取之后就到了eof结束的地方</p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250602151732504.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250602151732504.png" alt="image-20250602151732504"  />
+</a>
+</div>
+
+</p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250602151855662.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250602151855662.png" alt="image-20250602151855662"  />
+</a>
+</div>
+
+</p>
+<p>这里体现出来http2和http3的区别：http2在Content-Length比body实际长度大时，会等待一会儿的输入，来使两者相等，而http3则会更精准的检测出body的实际长度并且在body发送完毕之后迅速的发送结束流，也可以说是quic不会根据http请求包中的Content-Length来界定body的结束</p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250602152322273.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20250602152322273.png" alt="image-20250602152322273"  />
+</a>
+</div>
+
+</p>
 
         </div>
     </div>
@@ -673,6 +882,9 @@ download_file(&#34;flag&#34;, &#34;downloaded_example.txt&#34;)
                 
             </div>
             <div class="has-text-right">
+                
+                <p>Next post</p>
+                <a href="http://localhost:1313/post/torch.load%E6%96%B0%E6%94%BB%E5%87%BB%E6%89%8B%E6%B3%95/">torch.load攻击新手法</a>
                 
             </div>
         </section>
