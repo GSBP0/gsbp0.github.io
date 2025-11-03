@@ -86,11 +86,11 @@ when you submit `?templ=abc.ddw`,it would try to require ddw modules. It gives u
 
 But we couldn't create dir or `js` file.How do we attack?
 
-In [documents]("https://nodejs.org/api/modules.html") we could know
+In [documents](https://nodejs.org/api/modules.html) we could know
 
 > If the exact filename is not found, then Node.js will attempt to load the required filename with the added extensions: `.js`, `.json`, and finally `.node`. When loading a file that has a different extension (e.g. `.cjs`), its full name must be passed to `require()`, including its file extension (e.g. `require('./file.cjs')`).
 
-So we could use `.node` file to finish our attack,[My exploit]("https://github.com/Nu1LCTF/n1ctf-2025/tree/main/web/eezzjs/solution")
+So we could use `.node` file to finish our attack,[My exploit](https://github.com/Nu1LCTF/n1ctf-2025/tree/main/web/eezzjs/solution)
 
 At last, i felt sorry for this challenge really has some issues,and there many unexpected solutions can solve this challenge that could use simply `../` or `./` bypass my ez waf haha.
 
@@ -167,9 +167,9 @@ You could directly find a JNDI Injection vuln. Now first step is over.
 
 The second step is try to use this vulnerability to get an rce.JDK version is 17,many ways of JNDI attack might not working.I uses RMI communicate deserialize(Communication between the RMI server and RMI client employs serialisation and deserialisation).About deserialize chains,we uses Jackson+SpringAOP to solve this (You could find `Jackson` dependence in `welcomeServlet`,`SpringAOP`dependence and version could use `CVE-2025-55752` to detect).
 
-About this chains analysis,could see [this]("https://fushuling.com/index.php/2025/08/21/%e9%ab%98%e7%89%88%e6%9c%acjdk%e4%b8%8b%e7%9a%84spring%e5%8e%9f%e7%94%9f%e5%8f%8d%e5%ba%8f%e5%88%97%e5%8c%96%e9%93%be/")
+About this chains analysis,could see [this](https://fushuling.com/index.php/2025/08/21/%e9%ab%98%e7%89%88%e6%9c%acjdk%e4%b8%8b%e7%9a%84spring%e5%8e%9f%e7%94%9f%e5%8f%8d%e5%ba%8f%e5%88%97%e5%8c%96%e9%93%be/)
 
-[My exploit]("https://github.com/Nu1LCTF/n1ctf-2025/tree/main/web/n1cat/solution")
+[My exploit](https://github.com/Nu1LCTF/n1ctf-2025/tree/main/web/n1cat/solution)
 
 ![image-20251103135843185](https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20251103135843185.png)
 
