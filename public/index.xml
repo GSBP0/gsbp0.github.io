@@ -6,8 +6,15 @@
     <description>Recent content on GSBP&#39;s Blog</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 25 Aug 2025 15:33:31 +0800</lastBuildDate>
+    <lastBuildDate>Mon, 03 Nov 2025 12:00:00 +0800</lastBuildDate>
     <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>[2025]N1CTF WP for n1cat,eezzjs</title>
+      <link>http://localhost:1313/post/2025n1ctf-wp-for-n1cateezzjs/</link>
+      <pubDate>Mon, 03 Nov 2025 12:00:00 +0800</pubDate>
+      <guid>http://localhost:1313/post/2025n1ctf-wp-for-n1cateezzjs/</guid>
+      <description>&lt;h2 id=&#34;tldr&#34;&gt;TL;DR&lt;/h2&gt;&#xA;&lt;p&gt;It&amp;rsquo;s my first time to create challenges after i entered Nu1L Team. I&amp;rsquo;m glad to see so many hackers could solve my challenges though they have few problems(Such as in eezzjs, flag is in &lt;code&gt;/flag&lt;/code&gt; instead of &lt;code&gt;/ffffflag&lt;/code&gt; because my new attachment did not update on competition platform in time). Here are my expected solutions for these challenges&lt;/p&gt;&#xA;&lt;h2 id=&#34;eezzjs&#34;&gt;eezzjs&lt;/h2&gt;&#xA;&lt;p&gt;In this challenges, your first work is to get a legal JWT that you could pass &lt;code&gt;authenticateJWT&lt;/code&gt; middleware and use &lt;code&gt;/upload&lt;/code&gt; to upload your file arbitrarily.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>torch.load攻击新手法</title>
       <link>http://localhost:1313/post/torch.load%E6%96%B0%E6%94%BB%E5%87%BB%E6%89%8B%E6%B3%95/</link>
@@ -83,7 +90,7 @@
       <link>http://localhost:1313/about/</link>
       <pubDate>Fri, 17 Jan 2025 19:38:41 +0800</pubDate>
       <guid>http://localhost:1313/about/</guid>
-      <description>&lt;p&gt;一名大二在读学生&lt;/p&gt;&#xA;&lt;p&gt;Syclover核心成员,主力成员&amp;amp;Nu1L成员&lt;/p&gt;&#xA;&lt;p&gt;对各种安全感兴趣，目前主要学习的还的是Web安全（Java 安全、偶然也会学点云安全,等）&lt;/p&gt;&#xA;&lt;p&gt;最爱吃，最喜欢吃的是🍉，最喜欢干的事情就是大夏天抱着半个西瓜拿勺子挖着吃然后看视频&lt;/p&gt;&#xA;&lt;p&gt;&lt;strong&gt;什么都想学，但什么都不会&lt;/strong&gt;&lt;/p&gt;&#xA;&lt;h1 id=&#34;contact-me&#34;&gt;Contact Me&lt;/h1&gt;&#xA;&lt;p&gt;Email:gsbp6279@gmail.com&lt;/p&gt;&#xA;&lt;p&gt;GitHub:https://github.com/GSBP0/:&lt;/p&gt;</description>
+      <description>&lt;p&gt;一名大三在读学生&lt;/p&gt;&#xA;&lt;p&gt;Syclover队长&amp;amp;Nu1L成员&lt;/p&gt;&#xA;&lt;p&gt;对各种安全感兴趣，目前主要学习的还的是Web安全（Java 安全、偶然也会学点云安全,等）&lt;/p&gt;&#xA;&lt;p&gt;最爱吃，最喜欢吃的是🍉，最喜欢干的事情就是大夏天抱着半个西瓜拿勺子挖着吃然后看视频&lt;/p&gt;&#xA;&lt;p&gt;&lt;strong&gt;什么都想学，但什么都不会&lt;/strong&gt;&lt;/p&gt;&#xA;&lt;h1 id=&#34;contact-me&#34;&gt;Contact Me&lt;/h1&gt;&#xA;&lt;p&gt;Email:gsbp6279@gmail.com&lt;/p&gt;&#xA;&lt;p&gt;GitHub:https://github.com/GSBP0/:&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>

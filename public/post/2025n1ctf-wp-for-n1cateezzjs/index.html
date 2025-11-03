@@ -1,0 +1,410 @@
+
+<!DOCTYPE html>
+<html lang="en-us">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>[2025]N1CTF WP for n1cat,eezzjs | GSBP&#39;s Blog</title>
+    <meta name="description"
+        content="TL;DR
+It&rsquo;s my first time to create challenges after i entered Nu1L Team. I&rsquo;m glad to see so many hackers could solve my challenges though they have few problems(Such as in eezzjs, flag is in /flag instead of /ffffflag because my new attachment did not update on competition platform in time). Here are my expected solutions for these challenges
+eezzjs
+In this challenges, your first work is to get a legal JWT that you could pass authenticateJWT middleware and use /upload to upload your file arbitrarily.">
+    <link rel="canonical" href="http://localhost:1313/post/2025n1ctf-wp-for-n1cateezzjs/" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.4/css/bulma.min.css">
+    
+    <link rel="stylesheet" href="http://localhost:1313/scss/style.min.badf012c7f163854e3d9c3287a1df0863ae1974f62e123bbf1f2948b58ed39cf.css">
+
+    <meta property="og:url" content="http://localhost:1313/post/2025n1ctf-wp-for-n1cateezzjs/">
+  <meta property="og:site_name" content="GSBP&#39;s Blog">
+  <meta property="og:title" content="[2025]N1CTF WP for n1cat,eezzjs">
+  <meta property="og:description" content="TL;DR It’s my first time to create challenges after i entered Nu1L Team. I’m glad to see so many hackers could solve my challenges though they have few problems(Such as in eezzjs, flag is in /flag instead of /ffffflag because my new attachment did not update on competition platform in time). Here are my expected solutions for these challenges
+eezzjs In this challenges, your first work is to get a legal JWT that you could pass authenticateJWT middleware and use /upload to upload your file arbitrarily.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2025-11-03T12:00:00+08:00">
+    <meta property="article:modified_time" content="2025-11-03T12:00:00+08:00">
+
+    
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="[2025]N1CTF WP for n1cat,eezzjs">
+  <meta name="twitter:description" content="TL;DR It’s my first time to create challenges after i entered Nu1L Team. I’m glad to see so many hackers could solve my challenges though they have few problems(Such as in eezzjs, flag is in /flag instead of /ffffflag because my new attachment did not update on competition platform in time). Here are my expected solutions for these challenges
+eezzjs In this challenges, your first work is to get a legal JWT that you could pass authenticateJWT middleware and use /upload to upload your file arbitrarily.">
+
+    
+
+</head>
+<body><nav class="navbar is-light" role="navigation">
+    <div class="container">
+        <div class="navbar-brand">
+            <a href="/" title="home" class="navbar-item">
+                <span class="logo">
+                    <h1>GSBP&#39;s Blog</h1>
+                </span>
+            </a>
+
+            
+            <a id="theme-toggle" class="theme-toggle" href="#">
+                <img src="http://localhost:1313/svg/sun.svg" alt="sun icon" class="theme-icon" />
+            </a>
+
+            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+        </div>
+
+        <div class="navbar-menu">
+            <div class="navbar-start">
+                
+                <a href="/about" class="navbar-item">About</a>
+                
+                <a href="/post" class="navbar-item">Blog</a>
+                
+                <a href="/categories" class="navbar-item">Categories</a>
+                
+                <a href="/friend" class="navbar-item">Friends</a>
+                
+            </div>
+
+        </div>
+        <div class="search">
+            <div id="fastSearch">
+                <input id="searchInput" tabindex="0" placeholder="Search..">
+                <ul id="searchResults">
+
+                </ul>
+            </div>
+            <a id="search-btn" style="display: inline-block;" href="# ">
+                <div class="icon-search"><svg class="search-svg" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></div>
+            </a>
+        </div>
+
+        <script src="/js/fuse.min.js"></script> 
+        <script src="/js/fastsearch.js"></script>
+
+    </div>
+</nav>
+
+<script>
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        var burger = document.querySelector('.navbar-burger');
+        burger.addEventListener('click', function() {
+            burger.classList.toggle('is-active');
+            document.querySelector('.navbar-menu').classList.toggle('is-active');
+        });
+    });
+
+    
+    function setTheme(theme) {
+        let body = document.body;
+        let themeIcon = document.querySelector(".theme-icon");
+        if (theme === "dark") {
+            body.classList.add("dark-mode");
+            themeIcon.src = "http:\/\/localhost:1313\/svg/moon.svg";
+            themeIcon.alt = "moon icon";
+        } else {
+            body.classList.remove("dark-mode");
+            themeIcon.src = "http:\/\/localhost:1313\/svg/sun.svg";
+            themeIcon.alt = "sun icon";
+        }
+        
+        localStorage.setItem("theme", theme);
+    }
+
+    
+    let theme = localStorage.getItem("theme") || "light";
+    const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (isDarkMode) {
+        
+        setTheme('dark');
+
+    } else {
+        
+        setTheme('light');
+    }
+    setTheme(theme);
+
+    
+    document.getElementById("theme-toggle").addEventListener("click", function() {
+        if (theme === "light") {
+            theme = "dark";
+        } else {
+            theme = "light";
+        }
+        setTheme(theme);
+    });
+
+
+
+</script>
+
+</header><main>
+<div class="single-container">
+    <div class="archive">
+        <h1 class="title is-1">[2025]N1CTF WP for n1cat,eezzjs</h1>
+        <div class="title subtitle heading is-6">
+            <div class="author-info columns is-vcentered">
+                <div class="column">
+                    <div class="columns is-vcentered is-mobile">
+                        
+                        <div class="column is-narrow">
+                            <img src="/img/GSBP.jpg" class="author-image">
+                        </div>
+                        
+                        <div class="column">
+                            <p>GSBP</p>
+                            <p><time>November 3, 2025</time>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="small-categories-container">
+                    <a href="/categories/java%E5%AE%89%E5%85%A8">Java安全</a>, <a href="/categories/cve">CVE</a>, <a href="/categories/n1ctf">N1CTF</a>, <a href="/categories/wp">WP</a>
+                </div>
+            </div>
+        </div>
+        <div class="content article-content">
+            <div class="toc-container">
+                
+    <div class="post-toc">
+        
+            <aside>
+                <button id="tocButton" ><h4 id="contents" style="margin-left: 1vw;color:rgb(96, 134, 180);margin-bottom: 0;">CONTENTS</h4></button>
+                <div id="hide"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#eezzjs">eezzjs</a></li>
+    <li><a href="#n1cat">n1cat</a></li>
+    <li><a href="#end">END</a></li>
+  </ul>
+</nav></div>
+            </aside>
+        
+    </div><script>
+    
+        let button = document.getElementById('tocButton');
+        let hide = document.getElementById("hide");
+        let contents=document.getElementById("contents");
+        button.addEventListener("click", function() {
+        if (hide.style.display!='block') {
+            hide.style.display='block'
+        } else {
+            hide.style.display='none'
+            contents.style.color='rgb(96, 134, 180)'
+        }
+        });
+    
+
+
+
+
+</script>
+            </div>
+            <h2 id="tldr">TL;DR</h2>
+<p>It&rsquo;s my first time to create challenges after i entered Nu1L Team. I&rsquo;m glad to see so many hackers could solve my challenges though they have few problems(Such as in eezzjs, flag is in <code>/flag</code> instead of <code>/ffffflag</code> because my new attachment did not update on competition platform in time). Here are my expected solutions for these challenges</p>
+<h2 id="eezzjs">eezzjs</h2>
+<p>In this challenges, your first work is to get a legal JWT that you could pass <code>authenticateJWT</code> middleware and use <code>/upload</code> to upload your file arbitrarily.</p>
+<p>Actually it is easy to find this vuln. Beacuse when you try to debug locally, you could find information in this image</p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20251103111304530.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20251103111304530.png" alt="image-20251103111304530"  />
+</a>
+</div>
+
+</p>
+<p>When you run <code>npm audit</code>, you got the vuln is in sha.js,even it tells you the advisory of this vuln XD.</p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20251103111339546.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20251103111339546.png" alt="image-20251103111339546"  />
+</a>
+</div>
+
+</p>
+<p>The Principle of sha.js vuln is when you submit an Object  as <code>update()</code> &rsquo;s arg, you could find <code>length</code> is assign by <code>data.length</code>,so this._len can be control that if data is an Object and it has a member named <code>length</code></p>
+<pre tabindex="0"><code>Hash.prototype.update = function (data, enc) {
+  if (typeof data === &#39;string&#39;) {
+    enc = enc || &#39;utf8&#39;
+    data = Buffer.from(data, enc)
+  }
+
+  var block = this._block
+  var blockSize = this._blockSize
+  var length = data.length
+  var accum = this._len
+
+  for (var offset = 0; offset &lt; length;) {
+    var assigned = accum % blockSize
+    var remainder = Math.min(length - offset, blockSize - assigned)
+
+    for (var i = 0; i &lt; remainder; i++) {
+      block[assigned + i] = data[offset + i]
+    }
+
+    accum += remainder
+    offset += remainder
+
+    if ((accum % blockSize) === 0) {
+      this._update(block)
+    }
+  }
+
+  this._len += length
+  return this
+}
+</code></pre><p>where <code>this._len</code> equals to zero,its value always becomes the same.Then you could pass <code>authenticateJWT</code> and upload your file.</p>
+<p>Next step，you should use <code>/upload</code> and <code>/</code> try to get RCE</p>
+<p>As we all know,when ejs try to template a view in web.it would try to run this code</p>
+<pre tabindex="0"><code>  ...
+  if (!opts.engines[this.ext]) {
+    // load engine
+    var mod = this.ext.slice(1)
+    debug(&#39;require &#34;%s&#34;&#39;, mod)
+
+    // default engine export
+    var fn = require(mod).__express
+
+    if (typeof fn !== &#39;function&#39;) {
+      throw new Error(&#39;Module &#34;&#39; + mod + &#39;&#34; does not provide a view engine.&#39;)
+    }
+    ...
+</code></pre><p>when you submit <code>?templ=abc.ddw</code>,it would try to require ddw modules. It gives us a chance to run arbitrary code.</p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20251103121255718.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20251103121255718.png" alt="image-20251103121255718"  />
+</a>
+</div>
+
+</p>
+<p>But we couldn&rsquo;t create dir or <code>js</code> file.How do we attack?</p>
+<p>In <a href="%22https://nodejs.org/api/modules.html%22">documents</a> we could know</p>
+<blockquote>
+<p>If the exact filename is not found, then Node.js will attempt to load the required filename with the added extensions: <code>.js</code>, <code>.json</code>, and finally <code>.node</code>. When loading a file that has a different extension (e.g. <code>.cjs</code>), its full name must be passed to <code>require()</code>, including its file extension (e.g. <code>require('./file.cjs')</code>).</p>
+</blockquote>
+<p>So we could use <code>.node</code> file to finish our attack,<a href="%22https://github.com/Nu1LCTF/n1ctf-2025/tree/main/web/eezzjs/solution%22">My exploit</a></p>
+<p>At last, i felt sorry for this challenge really has some issues,and there many unexpected solutions can solve this challenge that could use simply <code>../</code> or <code>./</code> bypass my ez waf haha.</p>
+<h2 id="n1cat">n1cat</h2>
+<p>n1cat is a gray challenge because if i provide full source code, the first step( <code>CVE-2025-55752</code>) is completely useless XD. In other words you could use this vulnerability to get full source code(maybe some libs was confused).</p>
+<p>My attachment provide a Tomcat file <code>rewrite.config</code>,then you know <code>CVE-2025-55752</code> is a point of this challenge. You could try to read <code>web.xml</code>.</p>
+<pre tabindex="0"><code>&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;
+&lt;web-app xmlns=&#34;http://xmlns.jcp.org/xml/ns/javaee&#34;
+         xmlns:xsi=&#34;http://www.w3.org/2001/XMLSchema-instance&#34;
+         xsi:schemaLocation=&#34;http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd&#34;
+         version=&#34;4.0&#34;&gt;
+    &lt;servlet&gt;
+        &lt;servlet-name&gt;welcomeServlet&lt;/servlet-name&gt;
+        &lt;servlet-class&gt;ctf.n1cat.welcomeServlet&lt;/servlet-class&gt;
+    &lt;/servlet&gt;
+
+    &lt;servlet-mapping&gt;
+        &lt;servlet-name&gt;welcomeServlet&lt;/servlet-name&gt;
+        &lt;url-pattern&gt;/&lt;/url-pattern&gt;
+    &lt;/servlet-mapping&gt;
+&lt;/web-app&gt;
+</code></pre><p>then you know <code>welcomeServlet</code> class path,you could use the same way to down it. The same applies to the<code>User</code> class and detect lib.</p>
+<p>User.class</p>
+<pre tabindex="0"><code>package ctf.n1cat;
+
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+
+public class User {
+    private String name;
+    private String word;
+    private String url;
+
+    public User(){
+    }
+    public String getName() {
+        return name;
+    }
+    public String getWord() {
+        return word;
+    }
+    public void setWord(String password) {
+        this.word = password;
+    }
+
+    public void setName(String name) throws NamingException {
+        this.name = name;
+    }
+    public String getUrl() {
+        return url;
+    }
+    public void setUrl(String url) {
+        try{
+            new InitialContext().lookup(url);
+        } catch (NamingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+</code></pre><p>You could directly find a JNDI Injection vuln. Now first step is over.</p>
+<p>The second step is try to use this vulnerability to get an rce.JDK version is 17,many ways of JNDI attack might not working.I uses RMI communicate deserialize(Communication between the RMI server and RMI client employs serialisation and deserialisation).About deserialize chains,we uses Jackson+SpringAOP to solve this (You could find <code>Jackson</code> dependence in <code>welcomeServlet</code>,<code>SpringAOP</code>dependence and version could use <code>CVE-2025-55752</code> to detect).</p>
+<p>About this chains analysis,could see <a href="%22https://fushuling.com/index.php/2025/08/21/%e9%ab%98%e7%89%88%e6%9c%acjdk%e4%b8%8b%e7%9a%84spring%e5%8e%9f%e7%94%9f%e5%8f%8d%e5%ba%8f%e5%88%97%e5%8c%96%e9%93%be/%22">this</a></p>
+<p><a href="%22https://github.com/Nu1LCTF/n1ctf-2025/tree/main/web/n1cat/solution%22">My exploit</a></p>
+<p>
+<div class="post-img-view">
+<a data-fancybox="gallery" href="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20251103135843185.png">
+<img src="https://tuchuang-1322176132.cos.ap-chengdu.myqcloud.com//imgimage-20251103135843185.png" alt="image-20251103135843185"  />
+</a>
+</div>
+
+</p>
+<h2 id="end">END</h2>
+<p>All challenges and solutions has uploaded on <a href="%22https://github.com/Nu1LCTF/n1ctf-2025%22">GitHub</a>.Hope next time will be better</p>
+
+        </div>
+    </div>
+    <a href="#" id="scrollToTopButton">
+        <svg t="1686753152588" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
+            p-id="3988" width="48" height="48">
+            <path
+                d="M518.5 360.3c-3.2-4.4-9.7-4.4-12.9 0l-178 246c-3.8 5.3 0 12.7 6.5 12.7H381c10.2 0 19.9-4.9 25.9-13.2L512 460.4l105.2 145.4c6 8.3 15.6 13.2 25.9 13.2H690c6.5 0 10.3-7.4 6.5-12.7l-178-246z"
+                p-id="3989" fill="#363636"></path>
+            <path
+                d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64z m0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"
+                p-id="3990" fill="#363636"></path>
+        </svg>
+    </a>
+
+<div class="pp-container">
+        <section class="pre-and-post">
+            <div class="has-text-left">
+                
+                <p>Previous post</p>
+                <a href="http://localhost:1313/post/torch.load%E6%96%B0%E6%94%BB%E5%87%BB%E6%89%8B%E6%B3%95/">torch.load攻击新手法</a>
+                
+            </div>
+            <div class="has-text-right">
+                
+            </div>
+        </section>
+    </div>
+
+</div>
+
+        </main><footer class="footer">
+    <div class="content has-text-centered">
+    <span>&copy; 2025 <a href="http://localhost:1313/">GSBP&#39;s Blog</a></span>
+    
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+    <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" target="_blank">Hugo</a> &
+        <a href="https://github.com/hotjuicew/hugo-JuiceBar" target="_blank">JuiceBar</a>
+    </span>
+    </div>
+  </footer>
+</body>
+</html>
+

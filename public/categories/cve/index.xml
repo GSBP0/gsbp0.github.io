@@ -6,8 +6,15 @@
     <description>Recent content in CVE on GSBP&#39;s Blog</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 12 Mar 2025 18:00:00 +0800</lastBuildDate>
+    <lastBuildDate>Mon, 03 Nov 2025 12:00:00 +0800</lastBuildDate>
     <atom:link href="http://localhost:1313/categories/cve/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>[2025]N1CTF WP for n1cat,eezzjs</title>
+      <link>http://localhost:1313/post/2025n1ctf-wp-for-n1cateezzjs/</link>
+      <pubDate>Mon, 03 Nov 2025 12:00:00 +0800</pubDate>
+      <guid>http://localhost:1313/post/2025n1ctf-wp-for-n1cateezzjs/</guid>
+      <description>&lt;h2 id=&#34;tldr&#34;&gt;TL;DR&lt;/h2&gt;&#xA;&lt;p&gt;It&amp;rsquo;s my first time to create challenges after i entered Nu1L Team. I&amp;rsquo;m glad to see so many hackers could solve my challenges though they have few problems(Such as in eezzjs, flag is in &lt;code&gt;/flag&lt;/code&gt; instead of &lt;code&gt;/ffffflag&lt;/code&gt; because my new attachment did not update on competition platform in time). Here are my expected solutions for these challenges&lt;/p&gt;&#xA;&lt;h2 id=&#34;eezzjs&#34;&gt;eezzjs&lt;/h2&gt;&#xA;&lt;p&gt;In this challenges, your first work is to get a legal JWT that you could pass &lt;code&gt;authenticateJWT&lt;/code&gt; middleware and use &lt;code&gt;/upload&lt;/code&gt; to upload your file arbitrarily.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>[Tomcat]CVE-2025-24813复现及原理分析</title>
       <link>http://localhost:1313/post/tomcatcve-2025-24813%E5%A4%8D%E7%8E%B0%E5%8F%8A%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/</link>
